@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>横山未来子 | 公式ウェブサイト 初稿 ver.7</title>
+    <meta
+      name="description"
+      content="歌人・横山未来子の公式ウェブサイト初稿。プロフィール、歌集・著書、自選七首、NHK短歌関連導線を含む確認用デザインです。"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <a class="brand" href="#top" aria-label="横山未来子 公式ウェブサイト トップへ">
+          <span class="brand-ja">横山未来子</span>
+          <span class="brand-en">YOKOYAMA Mikiko</span>
+        </a>
+
+        <button class="nav-toggle" aria-expanded="false" aria-controls="global-nav" aria-label="メニューを開く">
+          <span></span><span></span><span></span>
+        </button>
+
+        <nav id="global-nav" class="global-nav" aria-label="グローバルナビゲーション">
+          <a href="#featured-tanka">自選七首</a>
+          <a href="#profile">プロフィール</a>
+          <a href="#works">著作</a>
+          <a href="#beginners">はじめての方へ</a>
+          <a href="#news">お知らせ</a>
+          <a href="#contact">お問い合わせ</a>
+        </nav>
+      </header>
+
+      <main id="top">
+        <section class="hero-section">
+          <div class="hero-copy">
+            <p class="eyebrow">歌人・横山未来子 公式ウェブサイト</p>
+            <h1>ことばの扉を、ひらいてゆく。</h1>
+            <p class="hero-lead">
+              『NHK短歌』をきっかけに横山未来子を知った方にも、
+              長く作品を読んできた方にも。作品、著作、現在の活動へ、
+              静かに入っていける入口として設計した確認用初稿です。
+            </p>
+            <ul class="hero-tags" aria-label="サイトの要点">
+              <li>歌人</li>
+              <li>歌誌「心の花」選者</li>
+              <li>2025年度・2026年度 Eテレ「NHK短歌」選者</li>
+            </ul>
+            <div class="hero-actions">
+              <a class="button primary" href="#featured-tanka">自選七首を見る</a>
+              <a class="button secondary" href="#works">著作を見る</a>
+            </div>
+          </div>
+
+          <figure class="hero-photo card">
+            <img src="assets/profile-photo.jpg" alt="横山未来子のプロフィール写真" />
+            <figcaption>※ 現在は共有写真の仮配置です。後で差し替え可能です。</figcaption>
+          </figure>
+        </section>
+
+        <section class="topic-band card soft">
+          <div>
+            <p class="eyebrow">TOPICS</p>
+            <p>
+              トップページでは、自選七首から一首ずつ表示します。
+              短歌は縦一行、旧仮名遣いは原文通り、ルビは常時表示、
+              出典は歌の横で歌の下端に合わせる仕様です。
+            </p>
+          </div>
+          <a class="text-link" href="#featured-tanka">短歌表示へ移動</a>
+        </section>
+
+        <section id="featured-tanka" class="featured-section">
+          <div class="section-heading center narrow">
+            <p class="eyebrow">SELECTED TANKA</p>
+            <h2>自選七首</h2>
+            <p>
+              トップページでは一首ずつ表示します。本文は縦一行、出典は横に置き、歌の下端に合わせます。
+            </p>
+          </div>
+
+          <article class="tanka-stage card accent">
+            <div class="tanka-stage-header">
+              <div>
+                <p class="eyebrow">TOP DISPLAY</p>
+                <h3>トップページの短歌表示</h3>
+              </div>
+              <p id="tanka-counter" class="tanka-counter" aria-live="polite"></p>
+            </div>
+
+            <div id="tanka-viewer" class="tanka-viewer" aria-live="polite">
+              <p class="loading-text">短歌を読み込んでいます…</p>
+            </div>
+
+            <div class="tanka-controls">
+              <button class="button secondary small" id="prev-tanka" type="button">前の一首</button>
+              <button class="button secondary small" id="next-tanka" type="button">次の一首</button>
+            </div>
+          </article>
+        </section>
+
+        <section id="profile" class="profile-section">
+          <div class="section-heading">
+            <p class="eyebrow">PROFILE</p>
+            <h2>プロフィール</h2>
+          </div>
+
+          <div class="profile-grid">
+            <article class="card profile-card">
+              <h3>横山未来子 / YOKOYAMA Mikiko</h3>
+              <p>
+                1972年東京都生まれ。歌人、歌誌「心の花」選者。2023年より短歌研究新人賞選考委員。2025年度、2026年度 Eテレ「NHK短歌」選者。
+              </p>
+              <p>
+                1994年「心の花」入会。1996年、第39回短歌研究新人賞受賞。2008年、歌集『花の線画』により第4回葛原妙子賞受賞。2021年、歌集『とく来りませ』により第8回佐藤佐太郎短歌賞受賞。
+              </p>
+            </article>
+
+            <aside class="card quote-card">
+              <p class="eyebrow">SITE NOTE</p>
+              <blockquote>
+                この初稿では、ことばの静けさと、
+                初めて訪れた方の入りやすさを両立する方向で組んでいます。
+              </blockquote>
+              <p class="quote-note">※ 本文では短歌に関する用語を厳密に区別しています。</p>
+            </aside>
+          </div>
+        </section>
+
+        <section id="works" class="works-section">
+          <div class="section-heading center narrow">
+            <p class="eyebrow">WORKS</p>
+            <h2>歌集・歌文集・著書</h2>
+            <p>書影素材は未受領のため、現段階では書名中心の構成です。</p>
+          </div>
+
+          <div class="works-columns">
+            <article class="card works-card">
+              <h3>歌集</h3>
+              <ul class="works-list">
+                <li>『樹下のひとりの眠りのために』</li>
+                <li>『水をひらく手』</li>
+                <li>『花の線画』</li>
+                <li>『金の雨』</li>
+                <li>『午後の蝶』</li>
+                <li>『とく来りませ』</li>
+              </ul>
+            </article>
+
+            <article class="card works-card">
+              <h3>歌文集</h3>
+              <ul class="works-list">
+                <li>『セレクション歌人30 横山未来子集』</li>
+              </ul>
+            </article>
+
+            <article class="card works-card">
+              <h3>著書</h3>
+              <ul class="works-list">
+                <li>『はじめてのやさしい短歌のつくりかた』</li>
+                <li>『のんびり読んで、すんなり身につく　いちばんやさしい短歌』</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section id="beginners" class="beginners-section section-two-col">
+          <article class="card soft">
+            <p class="eyebrow">FOR NEW READERS</p>
+            <h2>はじめて横山未来子を知った方へ</h2>
+            <p>
+              『NHK短歌』から来た方にも入りやすいように、まずは一首、つぎにプロフィール、そして著作へと自然につながる導線を置いています。
+            </p>
+          </article>
+          <article class="card soft">
+            <p class="eyebrow">FOR STUDENTS</p>
+            <h2>中学生・高校生にも届く入口</h2>
+            <p>
+              難しい説明を先に並べず、短歌そのものと、ことばの魅力に先に触れられる構成を意識しています。
+            </p>
+          </article>
+        </section>
+
+        <section id="news" class="news-section">
+          <div class="section-heading center">
+            <p class="eyebrow">NEWS</p>
+            <h2>お知らせ</h2>
+            <p>ここは更新情報の正式投入前の仮置きです。</p>
+          </div>
+
+          <div class="card news-list">
+            <article class="news-item">
+              <time datetime="2026-05-08">2026.05.08</time>
+              <div>
+                <h3>サイト初稿を更新しました</h3>
+                <p>プロフィール、著作一覧、自選七首表示の仕様を反映した確認用更新版です。</p>
+              </div>
+            </article>
+            <article class="news-item">
+              <time datetime="2026-05-01">2026.05.01</time>
+              <div>
+                <h3>『NHK短歌』関連導線をトップへ配置予定</h3>
+                <p>番組をきっかけに訪れた方が、作品と著作へ自然に進める構成を採用します。</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section id="contact" class="contact-section card soft">
+          <div>
+            <p class="eyebrow">CONTACT</p>
+            <h2>お問い合わせ</h2>
+            <p>
+              出演依頼、講演依頼、取材依頼、学校関係のご相談など、オフィス横山の窓口へ集約する想定です。
+            </p>
+          </div>
+          <div class="contact-grid">
+            <div>
+              <h3>マネージメント窓口</h3>
+              <p>office@example.jp</p>
+            </div>
+            <div>
+              <h3>学校・講演関連</h3>
+              <p>school@example.jp</p>
+            </div>
+            <div>
+              <h3>外部リンク</h3>
+              <p>出版社ページ、番組関連ページ、SNSなどを後で整理して掲載</p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <p>© Office Yokoyama / Website Draft ver.7</p>
+      </footer>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
