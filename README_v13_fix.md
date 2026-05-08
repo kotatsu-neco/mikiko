@@ -25,6 +25,11 @@ PC版ファーストビューの表示崩れは、逐字表示のために短歌
   - 折り返しは CSS 任せにせず、表示単位に分解して16表示文字で `<br>` を挿入する方式にしました。
   - ルビ付き文字は親文字＋ルビを1表示単位として扱い、HTMLタグ文字列の長さや `rt` の文字数では数えていません。
 
+- `playwright.config.js` / `tests/featured-tanka.spec.js`
+  - Chromium専用のPlaywright確認を追加しました。
+  - 390 x 844 / 430 x 932 / 1366 x 768 / 1440 x 900 / 1920 x 1080 を確認対象にしました。
+  - 各viewportで全7首を巡回し、中央配置、`1/7` 非表示、本文と出典の下端揃え、縦書き、ボタン重なり、1画面内の収まりを確認します。
+
 ## 逐字表示の扱い
 
 今回は無効化しました。
@@ -73,19 +78,31 @@ PC版ファーストビューの表示崩れは、逐字表示のために短歌
   - `http://127.0.0.1:8000/` が HTTP 200 を返すことを確認しました。
   - `http://127.0.0.1:8000/data/tanka.json` が HTTP 200 を返すことを確認しました。
 
-- Playwright確認
-  - 未実行です。環境に `node` / `npx` / Playwright がありませんでした。
+- Chromium Playwright確認
+  - `npm install -D @playwright/test` を実行しました。
+  - `npx playwright install chromium` を実行しました。
+  - `npx playwright test --project=chromium` を実行し、5件すべて成功しました。
+  - 確認viewportは 390 x 844 / 430 x 932 / 1366 x 768 / 1440 x 900 / 1920 x 1080 です。
+  - 確認内容は、短歌表示グループの中央配置、`1/7` の非表示、本文と出典の下端揃え、縦書き維持、ボタン非重なり、PC版で一首が1画面に収まることです。
 
 - スクリーンショット確認
-  - 未実行です。Playwrightがなく、代替として試した Safari WebDriver は Safari 側で `Allow remote automation` が無効のためセッション作成できませんでした。
+  - Chromium Playwrightで以下を保存しました。
+  - 保存画像を確認し、短歌表示グループの中央配置、`1/7` 非表示、縦書き維持、ボタン非重なりを確認しました。
+  - `screenshots/v13_fix_chromium_mobile_390_top.png`
+  - `screenshots/v13_fix_chromium_mobile_430_top.png`
+  - `screenshots/v13_fix_chromium_desktop_1366_top.png`
+  - `screenshots/v13_fix_chromium_desktop_1440_top.png`
+  - `screenshots/v13_fix_chromium_desktop_1920_top.png`
 
 ## 未確認
 
-- iPhone Safari
-- macOS Safari 実機目視
-- 公開URL
-- Playwrightによる viewport 別スクリーンショット
-- 375 x 667 / 390 x 844 / 430 x 932 / 768 x 1024 / 1366 x 768 / 1440 x 900 / 1920 x 1080 の実ブラウザ目視確認
+- WebKit Playwright確認
+- macOS Safari実機確認
+- iPhone Safari実機確認
+- 375 x 667 / 768 x 1024 のChromium Playwright確認
+- 公開URLでの確認
+
+WebKit Playwright確認は、現在の環境で `Playwright does not support webkit on mac13` が出るため未実行です。このエラーは環境制約として扱い、今回の作業では解消対象にしていません。
 
 ## 既知の課題
 

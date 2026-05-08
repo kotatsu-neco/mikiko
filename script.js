@@ -100,12 +100,148 @@ const globalNav = document.getElementById('global-nav');
 const siteHeader = document.getElementById('site-header');
 
 const DISPLAY_BREAK_UNITS = 16;
+const diagnosticParams = new URLSearchParams(window.location.search);
+const isScrollDebug = diagnosticParams.get('debugScroll') === '1';
+const shouldUseManualRestoration = isScrollDebug && diagnosticParams.get('manualRestoration') === '1';
+const shouldForceTop = isScrollDebug && diagnosticParams.get('forceTop') === '1';
 
 let tankaData = [];
 let booksData = [];
 let currentIndex = 0;
 let headerTimer = null;
+let diagnosticPanel = null;
+let diagnosticLatest = null;
+let diagnosticEvents = null;
+let diagnosticTextarea = null;
+let scrollLogTimer = null;
+let lastHeaderLogAt = 0;
 const headerHideDelay = 2400;
+const diagnosticLogs = [];
+
+if (shouldUseManualRestoration && 'scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
+
+window.__YKM_SCROLL_DIAGNOSTICS__ = diagnosticLogs;
+
+function rectFor(selector) {
+  const element = document.querySelector(selector);
+  if (!element) return null;
+  const rect = element.getBoundingClientRect();
+  return {
+    top: Math.round(rect.top * 100) / 100,
+    right: Math.round(rect.right * 100) / 100,
+    bottom: Math.round(rect.bottom * 100) / 100,
+    left: Math.round(rect.left * 100) / 100,
+    width: Math.round(rect.width * 100) / 100,
+    height: Math.round(rect.height * 100) / 100
+  };
+}
+
+function activeElementInfo() {
+  const element = document.activeElement;
+  if (!element) return { tagName: '', id: '', className: '' };
+  return {
+    tagName: element.tagName || '',
+    id: element.id || '',
+    className: typeof element.className === 'string' ? element.className : String(element.className || '')
+  };
+}
+
+function collectDiagnosticSnapshot(eventName, extra = {}) {
+  const activeElement = activeElementInfo();
+  const visualViewport = window.visualViewport;
+  return {
+    timestamp: new Date().toISOString(),
+    elapsedMs: Math.round(performance.now()),
+    eventName,
+    locationHref: location.href,
+    locationHash: location.hash,
+    scrollY: Math.round(window.scrollY * 100) / 100,
+    documentElementScrollTop: Math.round(document.documentElement.scrollTop * 100) / 100,
+    documentElementScrollHeight: document.documentElement.scrollHeight,
+    bodyScrollHeight: document.body ? document.body.scrollHeight : null,
+    innerWidth: window.innerWidth,
+    innerHeight: window.innerHeight,
+    visualViewportWidth: visualViewport ? Math.round(visualViewport.width * 100) / 100 : null,
+    visualViewportHeight: visualViewport ? Math.round(visualViewport.height * 100) / 100 : null,
+    visualViewportOffsetTop: visualViewport ? Math.round(visualViewport.offsetTop * 100) / 100 : null,
+    historyScrollRestoration: 'scrollRestoration' in history ? history.scrollRestoration : 'unsupported',
+    activeElementTagName: activeElement.tagName,
+    activeElementId: activeElement.id,
+    activeElementClassName: activeElement.className,
+    featuredHeroRect: rectFor('.featured-hero'),
+    featuredCenterRect: rectFor('.featured-center'),
+    poemLayoutRect: rectFor('.poem-layout'),
+    poemBodyRect: rectFor('.poem-body'),
+    poemSourceRect: rectFor('.poem-source'),
+    profileOffsetTop: document.getElementById('profile')?.offsetTop ?? null,
+    worksOffsetTop: document.getElementById('works')?.offsetTop ?? null,
+    ...extra
+  };
+}
+
+function renderDiagnosticPanel() {
+  if (!isScrollDebug || !diagnosticPanel || !diagnosticLatest || !diagnosticEvents) return;
+  const latest = diagnosticLogs[diagnosticLogs.length - 1];
+  if (!latest) return;
+  diagnosticLatest.textContent = [
+    `${latest.eventName} @ ${latest.elapsedMs}ms`,
+    `scrollY=${latest.scrollY} hash=${latest.locationHash || '(none)'}`,
+    `vh=${latest.innerHeight} vvH=${latest.visualViewportHeight ?? '(n/a)'}`,
+    `restoration=${latest.historyScrollRestoration}`
+  ].join('\n');
+  diagnosticEvents.innerHTML = diagnosticLogs.slice(-8).reverse().map((entry) => (
+    `<li><span>${entry.eventName}</span><code>y:${entry.scrollY} h:${entry.locationHash || '-'}</code></li>`
+  )).join('');
+}
+
+function recordDiagnostic(eventName, extra = {}) {
+  if (!isScrollDebug) return;
+  diagnosticLogs.push(collectDiagnosticSnapshot(eventName, extra));
+  if (diagnosticLogs.length > 240) diagnosticLogs.shift();
+  renderDiagnosticPanel();
+}
+
+async function copyDiagnosticLogs() {
+  const text = JSON.stringify(diagnosticLogs, null, 2);
+  try {
+    await navigator.clipboard.writeText(text);
+    recordDiagnostic('copy-log-success');
+  } catch (error) {
+    if (diagnosticTextarea) {
+      diagnosticTextarea.hidden = false;
+      diagnosticTextarea.value = text;
+      diagnosticTextarea.focus();
+      diagnosticTextarea.select();
+    }
+    recordDiagnostic('copy-log-fallback', { error: error instanceof Error ? error.message : String(error) });
+  }
+}
+
+function createDiagnosticPanel() {
+  if (!isScrollDebug || diagnosticPanel || !document.body) return;
+  diagnosticPanel = document.createElement('aside');
+  diagnosticPanel.className = 'scroll-diagnostics';
+  diagnosticPanel.setAttribute('aria-label', 'スクロール診断ログ');
+  diagnosticPanel.innerHTML = `
+    <div class="scroll-diagnostics__head">
+      <strong>Scroll diagnostics</strong>
+      <button class="scroll-diagnostics__copy" type="button">診断ログをコピー</button>
+    </div>
+    <pre class="scroll-diagnostics__latest" aria-live="polite"></pre>
+    <ol class="scroll-diagnostics__events"></ol>
+    <textarea class="scroll-diagnostics__textarea" hidden aria-label="手動コピー用診断ログ"></textarea>
+  `;
+  document.body.appendChild(diagnosticPanel);
+  diagnosticLatest = diagnosticPanel.querySelector('.scroll-diagnostics__latest');
+  diagnosticEvents = diagnosticPanel.querySelector('.scroll-diagnostics__events');
+  diagnosticTextarea = diagnosticPanel.querySelector('.scroll-diagnostics__textarea');
+  diagnosticPanel.querySelector('.scroll-diagnostics__copy')?.addEventListener('click', copyDiagnosticLogs);
+  renderDiagnosticPanel();
+}
+
+recordDiagnostic('script-start');
 
 function sanitizePoemHtml(html) {
   return html.replace(/<(?!\/?(ruby|rt|rp)\b)[^>]*>/g, '');
@@ -181,6 +317,7 @@ function renderWorks(books) {
       </article>
     `;
   }).join('');
+  recordDiagnostic('after-render-works');
 }
 
 function renderPoemError() {
@@ -213,6 +350,7 @@ function renderPoem(index) {
 
   featuredPoem.innerHTML = buildPoemMarkup(item);
   if (counter) counter.textContent = `現在${index + 1}首目、全${tankaData.length}首`;
+  recordDiagnostic('after-render-poem', { currentIndex: index });
 }
 
 function movePoem(delta) {
@@ -244,6 +382,11 @@ function openNav(forceOpen) {
 
 function showHeader() {
   siteHeader?.classList.remove('is-hidden');
+  const now = performance.now();
+  if (now - lastHeaderLogAt > 200) {
+    recordDiagnostic('after-header-show');
+    lastHeaderLogAt = now;
+  }
   if (headerTimer) window.clearTimeout(headerTimer);
   headerTimer = window.setTimeout(() => {
     if (window.scrollY < window.innerHeight * 0.9 && navToggle?.getAttribute('aria-expanded') !== 'true') {
@@ -253,10 +396,16 @@ function showHeader() {
 }
 
 async function init() {
+  createDiagnosticPanel();
+  recordDiagnostic('before-init');
   [tankaData, booksData] = await Promise.all([
     loadJson('data/tanka.json', FALLBACK_TANKA),
     loadJson('data/books.json', FALLBACK_BOOKS)
   ]);
+  recordDiagnostic('after-json-loaded', {
+    tankaCount: Array.isArray(tankaData) ? tankaData.length : null,
+    booksCount: Array.isArray(booksData) ? booksData.length : null
+  });
 
   tankaData = (Array.isArray(tankaData) ? tankaData : FALLBACK_TANKA)
     .filter((item) => item.status === 'published')
@@ -282,11 +431,37 @@ document.querySelectorAll('#global-nav a').forEach((link) => {
 });
 
 window.addEventListener('resize', () => {
+  recordDiagnostic('resize');
   showHeader();
+});
+window.addEventListener('orientationchange', () => recordDiagnostic('orientationchange'));
+window.addEventListener('hashchange', () => recordDiagnostic('hashchange'));
+window.addEventListener('load', () => recordDiagnostic('window-load'));
+window.addEventListener('pageshow', (event) => {
+  recordDiagnostic('pageshow', { persisted: event.persisted });
+  if (shouldForceTop && !location.hash) {
+    window.setTimeout(() => {
+      window.scrollTo(0, 0);
+      recordDiagnostic('force-top-after-pageshow');
+    }, 0);
+  }
+});
+window.addEventListener('beforeunload', () => recordDiagnostic('beforeunload'));
+document.addEventListener('DOMContentLoaded', () => {
+  createDiagnosticPanel();
+  recordDiagnostic('DOMContentLoaded');
 });
 document.addEventListener('keydown', maybeHandleArrowNavigation);
 ['scroll', 'wheel', 'mousemove', 'touchstart', 'touchmove', 'pointerdown', 'keydown'].forEach((eventName) => {
   window.addEventListener(eventName, showHeader, { passive: true });
 });
+window.addEventListener('scroll', () => {
+  if (!isScrollDebug || scrollLogTimer) return;
+  scrollLogTimer = window.setTimeout(() => {
+    scrollLogTimer = null;
+    recordDiagnostic('scroll');
+  }, 200);
+}, { passive: true });
+document.fonts?.ready?.then(() => recordDiagnostic('fonts-ready'));
 
 init();

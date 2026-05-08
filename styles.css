@@ -528,6 +528,69 @@ main {
   cursor: default;
 }
 
+.scroll-diagnostics {
+  position: fixed;
+  left: 10px;
+  bottom: calc(var(--featured-controls-height) + 12px);
+  z-index: 120;
+  width: 52px;
+  max-height: min(30svh, 220px);
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgba(80, 71, 64, 0.28);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 28px rgba(58, 43, 34, 0.12);
+  color: var(--ink);
+  font-size: 11px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  backdrop-filter: blur(12px);
+  overflow: auto;
+}
+.scroll-diagnostics__head {
+  display: grid;
+  align-items: center;
+  gap: 6px;
+}
+.scroll-diagnostics__copy {
+  min-height: 28px;
+  padding: 0 6px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface-strong);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+}
+.scroll-diagnostics__latest {
+  margin: 0;
+  white-space: pre-wrap;
+  font: inherit;
+}
+.scroll-diagnostics__events {
+  margin: 0;
+  padding-left: 1.4em;
+}
+.scroll-diagnostics__events li + li {
+  margin-top: 3px;
+}
+.scroll-diagnostics__events span {
+  font-weight: 700;
+}
+.scroll-diagnostics__events code {
+  display: block;
+  color: var(--sub);
+  font: inherit;
+}
+.scroll-diagnostics__textarea {
+  width: 100%;
+  min-height: 90px;
+  resize: vertical;
+  font: 11px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .site-header {
     transition: none !important;
