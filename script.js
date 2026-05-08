@@ -40,6 +40,8 @@ const viewer = document.getElementById('tanka-viewer');
 const prevBtn = document.getElementById('prev-tanka');
 const nextBtn = document.getElementById('next-tanka');
 const counter = document.getElementById('tanka-counter');
+const stage = document.querySelector('.tanka-stage');
+const controls = document.querySelector('.tanka-controls');
 const navToggle = document.querySelector('.nav-toggle');
 const globalNav = document.getElementById('global-nav');
 let currentIndex = 0;
@@ -69,34 +71,45 @@ function fitTanka(frame, body, source) {
   const viewportWidth = window.innerWidth;
   const charCount = countVisibleChars(body.textContent || '');
   const rubyCount = body.querySelectorAll('rt').length;
-  const minFont = viewportWidth <= 430 ? 20 : viewportWidth <= 640 ? 23 : 28;
-  const maxFont = viewportWidth <= 430 ? 31 : viewportWidth <= 640 ? 34 : 40;
-  const availableHeight = Math.max(260, viewer.clientHeight - (viewportWidth <= 640 ? 40 : 56));
-  let fontSize = Math.min(
-    maxFont,
-    Math.max(minFont, baseFontSize(charCount + rubyCount, viewportWidth))
-  );
+  const frameStyles = window.getComputedStyle(frame);
+  const sourceWidth = source.getBoundingClientRect().width || 0;
+  const gap = parseFloat(frameStyles.columnGap || frameStyles.gap || '0') || 0;
+  const framePaddingTop = parseFloat(frameStyles.paddingTop || '0') || 0;
+  const framePaddingBottom = parseFloat(frameStyles.paddingBottom || '0') || 0;
+  const controlsHeight = controls?.getBoundingClientRect().height || 0;
+  const headerHeight = stage?.querySelector('.tanka-stage-header')?.getBoundingClientRect().height || 0;
+  const availableHeight = Math.max(280, viewer.clientHeight - framePaddingTop - framePaddingBottom);
+  const availableWidth = Math.max(120, frame.clientWidth - sourceWidth - gap - 8);
 
-  body.style.setProperty('--tanka-max-height', `${availableHeight}px`);
+  const minFont = viewportWidth <= 430 ? 18 : viewportWidth <= 640 ? 21 : 26;
+  const maxFont = viewportWidth <= 430 ? 28 : viewportWidth <= 640 ? 31 : 38;
+  let fontSize = Math.min(maxFont, Math.max(minFont, baseFontSize(charCount + rubyCount, viewportWidth)));
+
   body.style.setProperty('--tanka-font-size', `${fontSize}px`);
 
   requestAnimationFrame(() => {
     let safety = 0;
-    while (body.getBoundingClientRect().height > availableHeight && fontSize > minFont && safety < 40) {
+    while ((body.getBoundingClientRect().height > availableHeight || body.getBoundingClientRect().width > availableWidth) && fontSize > minFont && safety < 48) {
       fontSize -= 1;
       body.style.setProperty('--tanka-font-size', `${fontSize}px`);
       safety += 1;
     }
 
-    while (body.getBoundingClientRect().height < availableHeight - 48 && fontSize < maxFont && safety < 80) {
+    while (body.getBoundingClientRect().height < availableHeight - 72 && body.getBoundingClientRect().width < availableWidth - 8 && fontSize < maxFont && safety < 96) {
       fontSize += 1;
       body.style.setProperty('--tanka-font-size', `${fontSize}px`);
-      if (body.getBoundingClientRect().height > availableHeight) {
+      if (body.getBoundingClientRect().height > availableHeight || body.getBoundingClientRect().width > availableWidth) {
         fontSize -= 1;
         body.style.setProperty('--tanka-font-size', `${fontSize}px`);
         break;
       }
       safety += 1;
+    }
+
+    // keep the poem vertically centered without colliding with controls
+    const neededStageHeight = headerHeight + controlsHeight + body.getBoundingClientRect().height + 120;
+    if (stage && stage.getBoundingClientRect().height < neededStageHeight) {
+      stage.style.minHeight = `${Math.ceil(neededStageHeight)}px`;
     }
   });
 }

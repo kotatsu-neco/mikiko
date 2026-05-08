@@ -219,7 +219,7 @@ main { display:grid; gap: 26px; }
 }
 .tanka-body ruby {
   ruby-align: center;
-  ruby-position: over;
+  ruby-position: inter-character;
 }
 .tanka-body rt {
   font-family: "BIZ UDPMincho", "BIZ UDMincho Medium", "Yu Mincho Demibold", "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif JP", serif;
@@ -347,4 +347,130 @@ main { display:grid; gap: 26px; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   * { transition: none !important; animation: none !important; }
+}
+
+
+/* v11 adjustments: mobile tanka fit, source alignment, less obstructive header */
+.tanka-stage {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  min-height: min(980px, calc(100svh - 120px));
+}
+.tanka-viewer {
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+.tanka-frame {
+  min-height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: clamp(16px, 2.8vw, 34px);
+  padding: clamp(16px, 3vw, 32px) clamp(8px, 3vw, 36px) clamp(24px, 4vw, 40px);
+}
+.tanka-column-wrap {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tanka-body {
+  max-height: none;
+  margin: 0;
+}
+.tanka-source {
+  align-self: flex-end;
+  margin-bottom: .15em;
+  padding-bottom: .15em;
+  line-height: 1.85;
+}
+.tanka-controls {
+  position: relative;
+  z-index: 1;
+  padding-top: 10px;
+  margin-top: 0;
+}
+
+@media (max-width: 980px) {
+  .tanka-stage {
+    min-height: calc(100svh - 152px);
+  }
+}
+
+@media (max-width: 640px) {
+  .site-header {
+    position: static;
+    backdrop-filter: none;
+    background: rgba(255,255,255,.68);
+    box-shadow: none;
+    margin-bottom: 8px;
+  }
+  .global-nav {
+    top: calc(100% + 6px);
+  }
+  .featured-section {
+    min-height: calc(100svh - 96px);
+  }
+  .tanka-stage {
+    min-height: calc(100svh - 118px);
+    padding: 18px 14px 16px;
+    gap: 6px;
+  }
+  .tanka-stage-header {
+    margin-bottom: 4px;
+  }
+  .tanka-stage-header h3 {
+    font-size: 1rem;
+  }
+  .tanka-viewer {
+    min-height: calc(100svh - 250px);
+  }
+  .tanka-frame {
+    gap: 16px;
+    padding: 8px 2px 14px;
+  }
+  .tanka-column-wrap {
+    min-height: calc(100svh - 290px);
+  }
+  .tanka-source {
+    font-size: .92rem;
+    margin-bottom: .25em;
+    padding-bottom: .25em;
+  }
+  .tanka-controls {
+    justify-content: space-between;
+    gap: 10px;
+    padding-top: 8px;
+  }
+  .tanka-controls .button {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 430px) {
+  .featured-section {
+    min-height: calc(100svh - 88px);
+  }
+  .tanka-stage {
+    min-height: calc(100svh - 108px);
+  }
+  .tanka-viewer {
+    min-height: calc(100svh - 238px);
+  }
+  .tanka-column-wrap {
+    min-height: calc(100svh - 282px);
+  }
+  .tanka-frame {
+    gap: 12px;
+  }
+  .tanka-source {
+    font-size: .88rem;
+  }
 }
