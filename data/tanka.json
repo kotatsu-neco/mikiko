@@ -1,0 +1,86 @@
+[
+  {
+    "id": "selected_001",
+    "order": 1,
+    "text": "胸もとに水の反照うけて立つきみの四囲より啓かるる夏",
+    "html": "胸もとに水の反照うけて立つきみの四囲より<ruby>啓<rt>ひら</rt></ruby>かるる夏",
+    "sourceBookId": "jukano_hitori_no_nemuri",
+    "sourceLabel": "『樹下のひとりの眠りのために』",
+    "displayGroup": "selected-seven",
+    "isFeatured": true,
+    "status": "published",
+    "note": ""
+  },
+  {
+    "id": "selected_002",
+    "order": 2,
+    "text": "逢ひしことの温度を永く保たむととざせり耳をまなこを喉を",
+    "html": "逢ひしことの温度を永く保たむととざせり耳をまなこを喉を",
+    "sourceBookId": "mizuwo_hiraku_te",
+    "sourceLabel": "『水をひらく手』",
+    "displayGroup": "selected-seven",
+    "isFeatured": true,
+    "status": "published",
+    "note": ""
+  },
+  {
+    "id": "selected_003",
+    "order": 3,
+    "text": "蜜吸ひては花のうへにて踏み替ふる蝶の脚ほそしわがまなかひに",
+    "html": "蜜吸ひては花のうへにて踏み替ふる蝶の脚ほそしわがまなかひに",
+    "sourceBookId": "hanano_senga",
+    "sourceLabel": "『花の線画』",
+    "displayGroup": "selected-seven",
+    "isFeatured": true,
+    "status": "published",
+    "note": ""
+  },
+  {
+    "id": "selected_004",
+    "order": 4,
+    "text": "眼をあけてゐられぬ空の下に寝むわれらの髪に蟻迷ふまで",
+    "html": "眼をあけてゐられぬ空の下に寝むわれらの髪に蟻迷ふまで",
+    "sourceBookId": "hanano_senga",
+    "sourceLabel": "『花の線画』",
+    "displayGroup": "selected-seven",
+    "isFeatured": true,
+    "status": "published",
+    "note": ""
+  },
+  {
+    "id": "selected_005",
+    "order": 5,
+    "text": "巻貝のかたちに我のねむるときあかるき金の雨となりて来よ",
+    "html": "巻貝のかたちに我のねむるときあかるき金の雨となりて来よ",
+    "sourceBookId": "kinno_ame",
+    "sourceLabel": "『金の雨』",
+    "displayGroup": "selected-seven",
+    "isFeatured": true,
+    "status": "published",
+    "note": ""
+  },
+  {
+    "id": "selected_006",
+    "order": 6,
+    "text": "永遠の午後あるごとく橋脚に水面のあかりまつはりてをり",
+    "html": "永遠の午後あるごとく橋脚に水面のあかりまつはりてをり",
+    "sourceBookId": "gogo_no_cho",
+    "sourceLabel": "『午後の蝶』",
+    "displayGroup": "selected-seven",
+    "isFeatured": true,
+    "status": "published",
+    "note": ""
+  },
+  {
+    "id": "selected_007",
+    "order": 7,
+    "text": "星に星のふるへ伝はり手のなかの万年筆をかちりと閉めつ",
+    "html": "星に星のふるへ伝はり手のなかの万年筆をかちりと閉めつ",
+    "sourceBookId": "toku_koirimasu",
+    "sourceLabel": "『とく来りませ』",
+    "displayGroup": "selected-seven",
+    "isFeatured": true,
+    "status": "published",
+    "note": ""
+  }
+]
