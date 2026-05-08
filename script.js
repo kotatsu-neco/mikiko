@@ -99,6 +99,8 @@ const navToggle = document.querySelector('.nav-toggle');
 const globalNav = document.getElementById('global-nav');
 const siteHeader = document.getElementById('site-header');
 
+const DISPLAY_BREAK_UNITS = 16;
+
 let tankaData = [];
 let booksData = [];
 let currentIndex = 0;
@@ -107,6 +109,52 @@ const headerHideDelay = 2400;
 
 function sanitizePoemHtml(html) {
   return html.replace(/<(?!\/?(ruby|rt|rp)\b)[^>]*>/g, '');
+}
+
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function getDisplayUnits(html) {
+  const template = document.createElement('template');
+  template.innerHTML = sanitizePoemHtml(html);
+  const units = [];
+
+  function pushText(text) {
+    for (const char of [...text]) {
+      if (!char.trim()) continue;
+      units.push({ type: 'text', value: char });
+    }
+  }
+
+  function walk(node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      pushText(node.textContent || '');
+      return;
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) return;
+    if (node.tagName.toLowerCase() === 'ruby') {
+      units.push({ type: 'html', value: sanitizePoemHtml(node.outerHTML) });
+      return;
+    }
+    Array.from(node.childNodes).forEach(walk);
+  }
+
+  Array.from(template.content.childNodes).forEach(walk);
+  return units;
+}
+
+function buildFixedBreakPoemHtml(html) {
+  return getDisplayUnits(html).map((unit, index) => {
+    const value = unit.type === 'html' ? unit.value : escapeHtml(unit.value);
+    const shouldBreak = (index + 1) === DISPLAY_BREAK_UNITS;
+    return shouldBreak ? `${value}<br class="poem-break">` : value;
+  }).join('');
 }
 
 async function loadJson(path, fallback) {
@@ -149,7 +197,7 @@ function buildPoemMarkup(item) {
   return `
     <div class="poem-layout">
       <div class="poem-body-wrap" id="poem-body-wrap">
-        <p class="poem-body">${sanitizePoemHtml(item.html)}</p>
+        <p class="poem-body">${buildFixedBreakPoemHtml(item.html)}</p>
       </div>
       <p class="poem-source" id="poem-source">${item.sourceLabel}</p>
     </div>
@@ -164,7 +212,7 @@ function renderPoem(index) {
   }
 
   featuredPoem.innerHTML = buildPoemMarkup(item);
-  if (counter) counter.textContent = `${index + 1} / ${tankaData.length}`;
+  if (counter) counter.textContent = `現在${index + 1}首目、全${tankaData.length}首`;
 }
 
 function movePoem(delta) {

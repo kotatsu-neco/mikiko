@@ -1,0 +1,73 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Node / npm
+node_modules/
+.npm/
+.pnpm-store/
+
+# Build / cache
+dist/
+build/
+.cache/
+.parcel-cache/
+.vite/
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# Temporary local verification files
+tmp/
+temp/
+.local/
+.env
+.env.local
+.env.*.local
+
+# Screenshots generated during verification
+screenshots/
+*.png.tmp
+*.jpg.tmp
+*.jpeg.tmp
+
+# Generated handoff archives
+*.zip
+*.tar
+*.tar.gz
+
+# OS / browser local files
+*.download
+*.crdownload
+
+# Do NOT ignore source site files:
+# index.html
+# styles.css
+# script.js
+# data/tanka.json
+# data/books.json
+# assets/
+# README*.md

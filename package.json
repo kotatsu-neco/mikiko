@@ -1,0 +1,24 @@
+{
+  "name": "mikiko",
+  "version": "1.0.0",
+  "description": "",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kotatsu-neco/mikiko.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/kotatsu-neco/mikiko/issues"
+  },
+  "homepage": "https://github.com/kotatsu-neco/mikiko#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.59.1"
+  }
+}

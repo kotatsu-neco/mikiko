@@ -218,7 +218,8 @@ main {
   color: var(--sub);
 }
 .poem-layout {
-  width: min(100%, 720px);
+  width: fit-content;
+  max-width: min(92vw, 720px);
   max-height: calc(100svh - var(--featured-controls-height) - 74px);
   display: flex;
   flex-direction: row-reverse;
@@ -240,9 +241,9 @@ main {
   white-space: normal;
   line-height: 1.85;
   letter-spacing: 0.08em;
-  font-size: clamp(1.55rem, 3.4svh, 2.45rem);
+  font-size: clamp(1.5rem, 3.2svh, 2.3rem);
   max-height: min(66svh, 680px);
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
 }
 .poem-body ruby {
   ruby-align: center;
@@ -465,15 +466,16 @@ main {
     min-height: calc(100svh - 42px);
   }
   .poem-layout {
-    width: 100%;
+    width: fit-content;
+    max-width: calc(100vw - 28px);
     max-height: calc(100svh - var(--featured-controls-height) - 64px);
-    gap: 16px;
+    gap: 14px;
   }
   .poem-body-wrap {
-    max-width: min(68vw, 24rem);
+    max-width: min(72vw, 24rem);
   }
   .poem-body {
-    font-size: clamp(1.4rem, 3.6svh, 1.85rem);
+    font-size: clamp(1.25rem, 3.1svh, 1.7rem);
     max-height: min(62svh, 560px);
   }
   .featured-controls {
