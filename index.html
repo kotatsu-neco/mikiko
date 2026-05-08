@@ -11,9 +11,10 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
     <div class="page-shell">
       <header class="site-header">
-        <a class="brand" href="#top" aria-label="横山未来子 公式ウェブサイト トップへ">
+        <a class="brand" href="#main-content" aria-label="横山未来子 公式ウェブサイト トップへ">
           <span class="brand-ja">横山未来子</span>
           <span class="brand-en">YOKOYAMA Mikiko</span>
         </a>
@@ -32,7 +33,7 @@
         </nav>
       </header>
 
-      <main id="top">
+      <main id="main-content">
         <section class="hero-section">
           <div class="hero-copy">
             <p class="eyebrow">歌人・横山未来子 公式ウェブサイト</p>
@@ -94,8 +95,8 @@
             </div>
 
             <div class="tanka-controls">
-              <button class="button secondary small" id="prev-tanka" type="button">前の一首</button>
-              <button class="button secondary small" id="next-tanka" type="button">次の一首</button>
+              <button class="button secondary small" id="prev-tanka" type="button" aria-label="前の短歌を表示">前の一首</button>
+              <button class="button secondary small" id="next-tanka" type="button" aria-label="次の短歌を表示">次の一首</button>
             </div>
           </article>
         </section>
