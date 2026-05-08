@@ -1,3 +1,16 @@
+const initialLocationHash = window.location.hash;
+const shouldKeepInitialTop = !initialLocationHash || initialLocationHash === '#top';
+const initialTopLockStartedAt = performance.now();
+const INITIAL_TOP_LOCK_MS = 1600;
+
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
+
+if (shouldKeepInitialTop) {
+  window.scrollTo(0, 0);
+}
+
 const FALLBACK_TANKA = [
   {
     id: 'selected_001',
@@ -124,6 +137,31 @@ if (shouldUseManualRestoration && 'scrollRestoration' in history) {
 
 window.__YKM_SCROLL_DIAGNOSTICS__ = diagnosticLogs;
 
+function shouldPinCurrentLocationToTop() {
+  return shouldKeepInitialTop && (!location.hash || location.hash === '#top');
+}
+
+function isWithinInitialTopLock() {
+  return performance.now() - initialTopLockStartedAt <= INITIAL_TOP_LOCK_MS;
+}
+
+function pinInitialTop(reason) {
+  if (!shouldPinCurrentLocationToTop() || !isWithinInitialTopLock()) return;
+  const wasOffset = window.scrollY !== 0 || document.documentElement.scrollTop !== 0 || (document.body?.scrollTop ?? 0) !== 0;
+  window.scrollTo(0, 0);
+  document.documentElement.scrollTop = 0;
+  if (document.body) document.body.scrollTop = 0;
+  recordDiagnostic('initial-top-pin', { reason, wasOffset });
+}
+
+function scheduleInitialTopPin(reason) {
+  if (!shouldPinCurrentLocationToTop() || !isWithinInitialTopLock()) return;
+  pinInitialTop(reason);
+  window.requestAnimationFrame(() => pinInitialTop(`${reason}-raf`));
+  window.setTimeout(() => pinInitialTop(`${reason}-120ms`), 120);
+  window.setTimeout(() => pinInitialTop(`${reason}-480ms`), 480);
+}
+
 function rectFor(selector) {
   const element = document.querySelector(selector);
   if (!element) return null;
@@ -241,6 +279,7 @@ function createDiagnosticPanel() {
   renderDiagnosticPanel();
 }
 
+scheduleInitialTopPin('script-start');
 recordDiagnostic('script-start');
 
 function sanitizePoemHtml(html) {
@@ -420,6 +459,7 @@ async function init() {
   }
 
   renderPoem(currentIndex);
+  scheduleInitialTopPin('after-render-poem');
   showHeader();
 }
 
@@ -439,6 +479,7 @@ window.addEventListener('hashchange', () => recordDiagnostic('hashchange'));
 window.addEventListener('load', () => recordDiagnostic('window-load'));
 window.addEventListener('pageshow', (event) => {
   recordDiagnostic('pageshow', { persisted: event.persisted });
+  scheduleInitialTopPin('pageshow');
   if (shouldForceTop && !location.hash) {
     window.setTimeout(() => {
       window.scrollTo(0, 0);
@@ -456,6 +497,9 @@ document.addEventListener('keydown', maybeHandleArrowNavigation);
   window.addEventListener(eventName, showHeader, { passive: true });
 });
 window.addEventListener('scroll', () => {
+  if (shouldPinCurrentLocationToTop() && isWithinInitialTopLock() && window.scrollY > 0) {
+    window.requestAnimationFrame(() => pinInitialTop('scroll-restore-guard'));
+  }
   if (!isScrollDebug || scrollLogTimer) return;
   scrollLogTimer = window.setTimeout(() => {
     scrollLogTimer = null;

@@ -44,12 +44,35 @@ test.describe('scroll diagnostics mode', () => {
       await page.goto('/');
       await expect(page.locator('.poem-body')).toBeVisible();
       await expect(page.locator('.scroll-diagnostics')).toHaveCount(0);
+      await expect(page.evaluate(() => history.scrollRestoration)).resolves.toBe('manual');
 
       if (viewport.width === 375 && viewport.height === 667) {
         await page.screenshot({ path: 'screenshots/diag_375x667_top_v13g.png', fullPage: false });
       }
     });
   }
+
+  test('normal URL reload stays at top without diagnostics', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    await expect(page.locator('.poem-body')).toBeVisible();
+    await page.waitForTimeout(1700);
+    await page.evaluate(() => window.scrollTo(0, 2200));
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(1000);
+
+    await page.reload();
+    await expect(page.locator('.poem-body')).toBeVisible();
+    await expect(page.locator('.scroll-diagnostics')).toHaveCount(0);
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(2);
+  });
+
+  test('hash URL can navigate to profile without diagnostics', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/#profile');
+    await expect(page.locator('#profile')).toBeVisible();
+    await expect(page.locator('.scroll-diagnostics')).toHaveCount(0);
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+  });
 
   for (const viewport of VIEWPORTS) {
     for (const path of DEBUG_PATHS) {
