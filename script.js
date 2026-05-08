@@ -68,34 +68,36 @@ function baseFontSize(charCount, viewportWidth) {
 function fitTanka(frame, body, source) {
   const viewportWidth = window.innerWidth;
   const charCount = countVisibleChars(body.textContent || '');
-  const minFont = viewportWidth <= 430 ? 22 : viewportWidth <= 640 ? 24 : 28;
+  const rubyCount = body.querySelectorAll('rt').length;
+  const minFont = viewportWidth <= 430 ? 20 : viewportWidth <= 640 ? 23 : 28;
   const maxFont = viewportWidth <= 430 ? 31 : viewportWidth <= 640 ? 34 : 40;
-  let fontSize = Math.min(maxFont, Math.max(minFont, baseFontSize(charCount, viewportWidth)));
+  const availableHeight = Math.max(260, viewer.clientHeight - (viewportWidth <= 640 ? 40 : 56));
+  let fontSize = Math.min(
+    maxFont,
+    Math.max(minFont, baseFontSize(charCount + rubyCount, viewportWidth))
+  );
 
+  body.style.setProperty('--tanka-max-height', `${availableHeight}px`);
   body.style.setProperty('--tanka-font-size', `${fontSize}px`);
 
   requestAnimationFrame(() => {
     let safety = 0;
-    while (body.scrollHeight > body.clientHeight && fontSize > minFont && safety < 20) {
+    while (body.getBoundingClientRect().height > availableHeight && fontSize > minFont && safety < 40) {
       fontSize -= 1;
       body.style.setProperty('--tanka-font-size', `${fontSize}px`);
       safety += 1;
     }
 
-    while (body.scrollHeight <= body.clientHeight - 44 && fontSize < maxFont && safety < 35) {
+    while (body.getBoundingClientRect().height < availableHeight - 48 && fontSize < maxFont && safety < 80) {
       fontSize += 1;
       body.style.setProperty('--tanka-font-size', `${fontSize}px`);
-      if (body.scrollHeight > body.clientHeight) {
+      if (body.getBoundingClientRect().height > availableHeight) {
         fontSize -= 1;
         body.style.setProperty('--tanka-font-size', `${fontSize}px`);
         break;
       }
       safety += 1;
     }
-
-    const diff = Math.max(0, body.clientHeight - body.scrollHeight);
-    const bottomOffset = Math.max(0, Math.floor(diff / 2) - 6);
-    source.style.setProperty('--source-bottom-offset', `${bottomOffset}px`);
   });
 }
 
@@ -103,10 +105,10 @@ function renderTanka(index) {
   const item = tankaData[index];
   viewer.innerHTML = `
     <div class="tanka-frame">
+      <div class="tanka-source">${item.source}</div>
       <div class="tanka-column-wrap">
         <p class="tanka-body">${item.textHtml}</p>
       </div>
-      <div class="tanka-source">${item.source}</div>
     </div>
   `;
 
