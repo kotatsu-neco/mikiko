@@ -37,12 +37,12 @@ async function getHeroMetrics(page) {
 
     return {
       viewport: { width: window.innerWidth, height: window.innerHeight },
-      layout: rect('.poem-layout'),
-      body: rect('.poem-body'),
-      source: rect('.poem-source'),
+      layout: rect('.tanka-layout'),
+      body: rect('.tanka-body'),
+      source: rect('.tanka-source'),
       controls: rect('.featured-controls'),
-      bodyWritingMode: style('.poem-body', 'writingMode'),
-      sourceWritingMode: style('.poem-source', 'writingMode'),
+      bodyWritingMode: style('.tanka-body', 'writingMode'),
+      sourceWritingMode: style('.tanka-source', 'writingMode'),
       visibleText: document.body.innerText
     };
   });
@@ -53,7 +53,7 @@ test.describe('featured tanka hero', () => {
     test(`${viewport.name} keeps the tanka display stable`, async ({ page }) => {
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
       await page.goto('/');
-      await expect(page.locator('.poem-body')).toBeVisible();
+      await expect(page.locator('.tanka-body')).toBeVisible();
 
       for (let index = 0; index < 7; index += 1) {
         const metrics = await getHeroMetrics(page);

@@ -42,7 +42,7 @@ test.describe('scroll diagnostics mode', () => {
     test(`normal URL does not show diagnostics at ${viewport.width}x${viewport.height}`, async ({ page }) => {
       await page.setViewportSize(viewport);
       await page.goto('/');
-      await expect(page.locator('.poem-body')).toBeVisible();
+      await expect(page.locator('.tanka-body')).toBeVisible();
       await expect(page.locator('.scroll-diagnostics')).toHaveCount(0);
       await expect(page.evaluate(() => history.scrollRestoration)).resolves.toBe('manual');
 
@@ -55,13 +55,13 @@ test.describe('scroll diagnostics mode', () => {
   test('normal URL reload stays at top without diagnostics', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/');
-    await expect(page.locator('.poem-body')).toBeVisible();
+    await expect(page.locator('.tanka-body')).toBeVisible();
     await page.waitForTimeout(1700);
     await page.evaluate(() => window.scrollTo(0, 2200));
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(1000);
 
     await page.reload();
-    await expect(page.locator('.poem-body')).toBeVisible();
+    await expect(page.locator('.tanka-body')).toBeVisible();
     await expect(page.locator('.scroll-diagnostics')).toHaveCount(0);
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(2);
   });
@@ -79,7 +79,7 @@ test.describe('scroll diagnostics mode', () => {
       test(`diagnostics ${path} at ${viewport.width}x${viewport.height}`, async ({ page }) => {
         await page.setViewportSize(viewport);
         await page.goto(path);
-        await expect(page.locator('.poem-body')).toBeVisible();
+        await expect(page.locator('.tanka-body')).toBeVisible();
 
         const hasDebug = path.includes('debugScroll=1');
         if (!hasDebug) {
@@ -97,7 +97,7 @@ test.describe('scroll diagnostics mode', () => {
         const logs = await page.evaluate(() => window.__YKM_SCROLL_DIAGNOSTICS__);
         expect(logs.some((entry) => entry.eventName === 'script-start')).toBe(true);
         expect(logs.some((entry) => entry.eventName === 'after-json-loaded')).toBe(true);
-        expect(logs.some((entry) => entry.eventName === 'after-render-poem')).toBe(true);
+        expect(logs.some((entry) => entry.eventName === 'after-render-tanka')).toBe(true);
 
         if (path.includes('manualRestoration=1')) {
           expect(logs.at(-1).historyScrollRestoration).toBe('manual');
@@ -114,12 +114,12 @@ test.describe('scroll diagnostics mode', () => {
         }
 
         const panel = await rect(page, '.scroll-diagnostics');
-        const poemBody = await rect(page, '.poem-body');
-        const source = await rect(page, '.poem-source');
+        const tankaBody = await rect(page, '.tanka-body');
+        const source = await rect(page, '.tanka-source');
         const prevButton = await rect(page, '#prev-tanka');
         const nextButton = await rect(page, '#next-tanka');
 
-        expect(overlaps(panel, poemBody)).toBe(false);
+        expect(overlaps(panel, tankaBody)).toBe(false);
         expect(overlaps(panel, source)).toBe(false);
         expect(overlaps(panel, prevButton)).toBe(false);
         expect(overlaps(panel, nextButton)).toBe(false);

@@ -103,7 +103,7 @@ const FALLBACK_BOOKS = [
   { id: 'ichiban_yasashii_tanka', title: 'のんびり読んで、すんなり身につく　いちばんやさしい短歌', type: '著書', year: '', publisher: '', purchaseUrl: '', description: '' }
 ];
 
-const featuredPoem = document.getElementById('featured-poem');
+const featuredTanka = document.getElementById('featured-tanka');
 const worksGrid = document.getElementById('works-grid');
 const prevBtn = document.getElementById('prev-tanka');
 const nextBtn = document.getElementById('next-tanka');
@@ -210,9 +210,9 @@ function collectDiagnosticSnapshot(eventName, extra = {}) {
     activeElementClassName: activeElement.className,
     featuredHeroRect: rectFor('.featured-hero'),
     featuredCenterRect: rectFor('.featured-center'),
-    poemLayoutRect: rectFor('.poem-layout'),
-    poemBodyRect: rectFor('.poem-body'),
-    poemSourceRect: rectFor('.poem-source'),
+    tankaLayoutRect: rectFor('.tanka-layout'),
+    tankaBodyRect: rectFor('.tanka-body'),
+    tankaSourceRect: rectFor('.tanka-source'),
     profileOffsetTop: document.getElementById('profile')?.offsetTop ?? null,
     worksOffsetTop: document.getElementById('works')?.offsetTop ?? null,
     ...extra
@@ -282,7 +282,7 @@ function createDiagnosticPanel() {
 scheduleInitialTopPin('script-start');
 recordDiagnostic('script-start');
 
-function sanitizePoemHtml(html) {
+function sanitizeTankaHtml(html) {
   return html.replace(/<(?!\/?(ruby|rt|rp)\b)[^>]*>/g, '');
 }
 
@@ -297,7 +297,7 @@ function escapeHtml(text) {
 
 function getDisplayUnits(html) {
   const template = document.createElement('template');
-  template.innerHTML = sanitizePoemHtml(html);
+  template.innerHTML = sanitizeTankaHtml(html);
   const units = [];
 
   function pushText(text) {
@@ -314,7 +314,7 @@ function getDisplayUnits(html) {
     }
     if (node.nodeType !== Node.ELEMENT_NODE) return;
     if (node.tagName.toLowerCase() === 'ruby') {
-      units.push({ type: 'html', value: sanitizePoemHtml(node.outerHTML) });
+      units.push({ type: 'html', value: sanitizeTankaHtml(node.outerHTML) });
       return;
     }
     Array.from(node.childNodes).forEach(walk);
@@ -324,11 +324,11 @@ function getDisplayUnits(html) {
   return units;
 }
 
-function buildFixedBreakPoemHtml(html) {
+function buildFixedBreakTankaHtml(html) {
   return getDisplayUnits(html).map((unit, index) => {
     const value = unit.type === 'html' ? unit.value : escapeHtml(unit.value);
     const shouldBreak = (index + 1) === DISPLAY_BREAK_UNITS;
-    return shouldBreak ? `${value}<br class="poem-break">` : value;
+    return shouldBreak ? `${value}<br class="tanka-break">` : value;
   }).join('');
 }
 
@@ -359,9 +359,9 @@ function renderWorks(books) {
   recordDiagnostic('after-render-works');
 }
 
-function renderPoemError() {
-  featuredPoem.innerHTML = `
-    <div class="poem-error" role="status" aria-live="polite">
+function renderTankaError() {
+  featuredTanka.innerHTML = `
+    <div class="tanka-error" role="status" aria-live="polite">
       <p>短歌データを読み込めませんでした。</p>
       <p>時間をおいて再読み込みしてください。</p>
     </div>
@@ -369,33 +369,33 @@ function renderPoemError() {
   if (counter) counter.textContent = '';
 }
 
-function buildPoemMarkup(item) {
+function buildTankaMarkup(item) {
   return `
-    <div class="poem-layout">
-      <div class="poem-body-wrap" id="poem-body-wrap">
-        <p class="poem-body">${buildFixedBreakPoemHtml(item.html)}</p>
+    <div class="tanka-layout">
+      <div class="tanka-body-wrap" id="tanka-body-wrap">
+        <p class="tanka-body">${buildFixedBreakTankaHtml(item.html)}</p>
       </div>
-      <p class="poem-source" id="poem-source">${item.sourceLabel}</p>
+      <p class="tanka-source" id="tanka-source">${item.sourceLabel}</p>
     </div>
   `;
 }
 
-function renderPoem(index) {
+function renderTanka(index) {
   const item = tankaData[index];
   if (!item) {
-    renderPoemError();
+    renderTankaError();
     return;
   }
 
-  featuredPoem.innerHTML = buildPoemMarkup(item);
+  featuredTanka.innerHTML = buildTankaMarkup(item);
   if (counter) counter.textContent = `現在${index + 1}首目、全${tankaData.length}首`;
-  recordDiagnostic('after-render-poem', { currentIndex: index });
+  recordDiagnostic('after-render-tanka', { currentIndex: index });
 }
 
-function movePoem(delta) {
+function moveTanka(delta) {
   if (!tankaData.length) return;
   currentIndex = (currentIndex + delta + tankaData.length) % tankaData.length;
-  renderPoem(currentIndex);
+  renderTanka(currentIndex);
 }
 
 function maybeHandleArrowNavigation(event) {
@@ -404,11 +404,11 @@ function maybeHandleArrowNavigation(event) {
   if (['input', 'textarea', 'select'].includes(tag) || target?.isContentEditable) return;
   if (event.key === 'ArrowLeft') {
     event.preventDefault();
-    movePoem(-1);
+    moveTanka(-1);
   }
   if (event.key === 'ArrowRight') {
     event.preventDefault();
-    movePoem(1);
+    moveTanka(1);
   }
 }
 
@@ -454,17 +454,17 @@ async function init() {
   renderWorks(booksData);
 
   if (!tankaData.length) {
-    renderPoemError();
+    renderTankaError();
     return;
   }
 
-  renderPoem(currentIndex);
-  scheduleInitialTopPin('after-render-poem');
+  renderTanka(currentIndex);
+  scheduleInitialTopPin('after-render-tanka');
   showHeader();
 }
 
-prevBtn?.addEventListener('click', () => movePoem(-1));
-nextBtn?.addEventListener('click', () => movePoem(1));
+prevBtn?.addEventListener('click', () => moveTanka(-1));
+nextBtn?.addEventListener('click', () => moveTanka(1));
 navToggle?.addEventListener('click', () => openNav());
 document.querySelectorAll('#global-nav a').forEach((link) => {
   link.addEventListener('click', () => openNav(false));

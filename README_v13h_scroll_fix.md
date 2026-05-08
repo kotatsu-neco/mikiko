@@ -48,7 +48,7 @@
 
 ## 推測
 
-実機ログでは hash なしURLで `locationHash` は空、`after-render-poem` 後も `scrollY` は `0` のまま、その後の scroll event で `scrollY: 2135` に移動していました。また `?debugScroll=1&manualRestoration=1` では更新後トップ表示で安定していたため、主因は Safari / ブラウザのスクロール位置復元と判断しています。
+実機ログでは hash なしURLで `locationHash` は空、`after-render-tanka` 後も `scrollY` は `0` のまま、その後の scroll event で `scrollY: 2135` に移動していました。また `?debugScroll=1&manualRestoration=1` では更新後トップ表示で安定していたため、主因は Safari / ブラウザのスクロール位置復元と判断しています。
 
 今回の実装は、その判断に基づき `history.scrollRestoration = 'manual'` を通常表示にも適用し、hash なしまたは `#top` の初期表示だけをトップ固定するものです。
 

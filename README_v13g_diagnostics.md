@@ -23,7 +23,7 @@
 - `?debugScroll=1&manualRestoration=1` のときだけ `history.scrollRestoration = 'manual'` を設定します。
 - `?debugScroll=1&forceTop=1` かつハッシュなしの場合だけ、`pageshow` 後にトップへ戻す診断スイッチを追加しました。
 - 診断ログには、時刻、イベント名、URL/hash、スクロール位置、document/body 高さ、viewport/visualViewport、`history.scrollRestoration`、active element、主要要素の rect、`#profile`/`#works` の `offsetTop` を記録します。
-- 記録イベント: `script-start`, `DOMContentLoaded`, `window-load`, `pageshow`, `before-init`, `after-json-loaded`, `after-render-works`, `after-render-poem`, `after-header-show`, `resize`, `orientationchange`, `scroll`, `hashchange`, `beforeunload`。
+- 記録イベント: `script-start`, `DOMContentLoaded`, `window-load`, `pageshow`, `before-init`, `after-json-loaded`, `after-render-works`, `after-render-tanka`, `after-header-show`, `resize`, `orientationchange`, `scroll`, `hashchange`, `beforeunload`。
 - 追加で、フォント読み込み完了確認用に `fonts-ready` も記録します。
 
 ## 変更ファイル

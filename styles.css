@@ -14,10 +14,10 @@
   --header-height: 78px;
   --featured-controls-height: 82px;
   --header-offset: 18px;
-  --poem-gap: 24px;
+  --tanka-gap: 24px;
   --site-width: min(1200px, calc(100vw - 32px));
   --body-font: "BIZ UDPGothic", "BIZ UDGothic", "Yu Gothic UI", "YuGothic", "Hiragino Sans", "Meiryo", "Noto Sans JP", sans-serif;
-  --poem-font: "BIZ UDPMincho", "BIZ UDMincho Medium", "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  --tanka-font: "BIZ UDPMincho", "BIZ UDMincho Medium", "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif JP", serif;
 }
 
 * { box-sizing: border-box; }
@@ -206,7 +206,7 @@ main {
   place-items: center;
   overflow: visible;
 }
-.featured-poem {
+.featured-tanka {
   position: relative;
   width: 100%;
   height: 100%;
@@ -217,7 +217,7 @@ main {
 .loading-inline {
   color: var(--sub);
 }
-.poem-layout {
+.tanka-layout {
   width: fit-content;
   max-width: min(92vw, 720px);
   max-height: calc(100svh - var(--featured-controls-height) - 74px);
@@ -227,15 +227,15 @@ main {
   justify-content: center;
   gap: clamp(18px, 3vw, 34px);
 }
-.poem-body-wrap {
+.tanka-body-wrap {
   display: block;
   min-width: 0;
   max-width: min(58vw, 34rem);
   z-index: 1;
 }
-.poem-body {
+.tanka-body {
   margin: 0;
-  font-family: var(--poem-font);
+  font-family: var(--tanka-font);
   writing-mode: vertical-rl;
   text-orientation: mixed;
   white-space: normal;
@@ -245,17 +245,17 @@ main {
   max-height: min(66svh, 680px);
   overflow-wrap: normal;
 }
-.poem-body ruby {
+.tanka-body ruby {
   ruby-align: center;
   ruby-position: inter-character;
 }
-.poem-body rt {
-  font-family: var(--poem-font);
+.tanka-body rt {
+  font-family: var(--tanka-font);
   font-size: 0.28em;
   line-height: 1;
   letter-spacing: 0;
 }
-.poem-source {
+.tanka-source {
   margin: 0;
   font-family: var(--body-font);
   writing-mode: vertical-rl;
@@ -266,7 +266,7 @@ main {
   line-height: 1.7;
   opacity: 0.86;
 }
-.poem-error {
+.tanka-error {
   max-width: 26rem;
   padding: 18px 20px;
   border-radius: 20px;
@@ -443,7 +443,7 @@ main {
     --site-width: calc(100vw - 24px);
     --header-height: 64px;
     --featured-controls-height: 104px;
-    --poem-gap: 18px;
+    --tanka-gap: 18px;
   }
   body {
     font-size: 15px;
@@ -465,16 +465,16 @@ main {
   .featured-stage {
     min-height: calc(100svh - 42px);
   }
-  .poem-layout {
+  .tanka-layout {
     width: fit-content;
     max-width: calc(100vw - 28px);
     max-height: calc(100svh - var(--featured-controls-height) - 64px);
     gap: 14px;
   }
-  .poem-body-wrap {
+  .tanka-body-wrap {
     max-width: min(72vw, 24rem);
   }
-  .poem-body {
+  .tanka-body {
     font-size: clamp(1.25rem, 3.1svh, 1.7rem);
     max-height: min(62svh, 560px);
   }
@@ -524,7 +524,7 @@ main {
   border: 0;
 }
 
-.poem-body-wrap {
+.tanka-body-wrap {
   cursor: default;
 }
 
