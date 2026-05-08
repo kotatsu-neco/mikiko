@@ -37,14 +37,27 @@ async function diagnosticsCount(page) {
   return page.evaluate(() => window.__YKM_SCROLL_DIAGNOSTICS__?.length ?? 0);
 }
 
+async function assetUrls(page) {
+  return page.evaluate(() => ({
+    stylesheet: document.querySelector('link[rel="stylesheet"]')?.getAttribute('href') ?? '',
+    script: document.querySelector('script[src]')?.getAttribute('src') ?? ''
+  }));
+}
+
 test.describe('scroll diagnostics mode', () => {
   for (const viewport of VIEWPORTS) {
     test(`normal URL does not show diagnostics at ${viewport.width}x${viewport.height}`, async ({ page }) => {
       await page.setViewportSize(viewport);
       await page.goto('/');
       await expect(page.locator('.tanka-body')).toBeVisible();
+      await expect(page.locator('.featured-loading')).toHaveCount(0);
       await expect(page.locator('.scroll-diagnostics')).toHaveCount(0);
       await expect(page.evaluate(() => history.scrollRestoration)).resolves.toBe('manual');
+      await expect(page.evaluate(() => window.__YKM_BUILD_ID__)).resolves.toBe('v13j-cache-bust-20260509');
+
+      const urls = await assetUrls(page);
+      expect(urls.stylesheet).toBe('styles.css?v=20260509-v13j');
+      expect(urls.script).toBe('script.js?v=20260509-v13j');
 
       if (viewport.width === 375 && viewport.height === 667) {
         await page.screenshot({ path: 'screenshots/diag_375x667_top_v13g.png', fullPage: false });
@@ -98,6 +111,8 @@ test.describe('scroll diagnostics mode', () => {
         expect(logs.some((entry) => entry.eventName === 'script-start')).toBe(true);
         expect(logs.some((entry) => entry.eventName === 'after-json-loaded')).toBe(true);
         expect(logs.some((entry) => entry.eventName === 'after-render-tanka')).toBe(true);
+        expect(logs.every((entry) => entry.buildId === 'v13j-cache-bust-20260509')).toBe(true);
+        await expect(page.locator('.scroll-diagnostics__latest')).toContainText('build=v13j-cache-bust-20260509');
 
         if (path.includes('manualRestoration=1')) {
           expect(logs.at(-1).historyScrollRestoration).toBe('manual');

@@ -91,4 +91,20 @@ test.describe('featured tanka hero', () => {
       }
     });
   }
+
+  test('previous and next buttons switch the selected tanka', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    await expect(page.locator('.tanka-body')).toBeVisible();
+
+    const tankaText = () => page.locator('.tanka-body').evaluate((element) => element.textContent);
+    const firstText = await tankaText();
+    await page.getByRole('button', { name: '次の一首を表示' }).click();
+    await expect(page.locator('#tanka-counter')).toContainText('現在2首目');
+    await expect.poll(tankaText).not.toBe(firstText);
+
+    await page.getByRole('button', { name: '前の一首を表示' }).click();
+    await expect(page.locator('#tanka-counter')).toContainText('現在1首目');
+    await expect.poll(tankaText).toBe(firstText);
+  });
 });

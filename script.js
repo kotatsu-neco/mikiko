@@ -1,3 +1,4 @@
+const BUILD_ID = 'v13j-cache-bust-20260509';
 const initialLocationHash = window.location.hash;
 const shouldKeepInitialTop = !initialLocationHash || initialLocationHash === '#top';
 const initialTopLockStartedAt = performance.now();
@@ -112,6 +113,20 @@ const navToggle = document.querySelector('.nav-toggle');
 const globalNav = document.getElementById('global-nav');
 const siteHeader = document.getElementById('site-header');
 
+const requiredElements = [
+  ['featured-tanka', featuredTanka],
+  ['prev-tanka', prevBtn],
+  ['next-tanka', nextBtn],
+  ['works-grid', worksGrid]
+];
+const missingRequiredElementIds = requiredElements
+  .filter(([, element]) => !element)
+  .map(([id]) => id);
+
+if (missingRequiredElementIds.length) {
+  console.error(`[${BUILD_ID}] Missing required elements: ${missingRequiredElementIds.join(', ')}`);
+}
+
 const DISPLAY_BREAK_UNITS = 16;
 const diagnosticParams = new URLSearchParams(window.location.search);
 const isScrollDebug = diagnosticParams.get('debugScroll') === '1';
@@ -136,6 +151,7 @@ if (shouldUseManualRestoration && 'scrollRestoration' in history) {
 }
 
 window.__YKM_SCROLL_DIAGNOSTICS__ = diagnosticLogs;
+window.__YKM_BUILD_ID__ = BUILD_ID;
 
 function shouldPinCurrentLocationToTop() {
   return shouldKeepInitialTop && (!location.hash || location.hash === '#top');
@@ -192,6 +208,7 @@ function collectDiagnosticSnapshot(eventName, extra = {}) {
   return {
     timestamp: new Date().toISOString(),
     elapsedMs: Math.round(performance.now()),
+    buildId: BUILD_ID,
     eventName,
     locationHref: location.href,
     locationHash: location.hash,
@@ -215,6 +232,7 @@ function collectDiagnosticSnapshot(eventName, extra = {}) {
     tankaSourceRect: rectFor('.tanka-source'),
     profileOffsetTop: document.getElementById('profile')?.offsetTop ?? null,
     worksOffsetTop: document.getElementById('works')?.offsetTop ?? null,
+    missingRequiredElementIds,
     ...extra
   };
 }
@@ -224,6 +242,7 @@ function renderDiagnosticPanel() {
   const latest = diagnosticLogs[diagnosticLogs.length - 1];
   if (!latest) return;
   diagnosticLatest.textContent = [
+    `build=${latest.buildId}`,
     `${latest.eventName} @ ${latest.elapsedMs}ms`,
     `scrollY=${latest.scrollY} hash=${latest.locationHash || '(none)'}`,
     `vh=${latest.innerHeight} vvH=${latest.visualViewportHeight ?? '(n/a)'}`,
@@ -280,7 +299,7 @@ function createDiagnosticPanel() {
 }
 
 scheduleInitialTopPin('script-start');
-recordDiagnostic('script-start');
+recordDiagnostic('script-start', { missingRequiredElementIds });
 
 function sanitizeTankaHtml(html) {
   return html.replace(/<(?!\/?(ruby|rt|rp)\b)[^>]*>/g, '');
@@ -360,6 +379,7 @@ function renderWorks(books) {
 }
 
 function renderTankaError() {
+  if (!featuredTanka) return;
   featuredTanka.innerHTML = `
     <div class="tanka-error" role="status" aria-live="polite">
       <p>短歌データを読み込めませんでした。</p>
@@ -382,6 +402,10 @@ function buildTankaMarkup(item) {
 
 function renderTanka(index) {
   const item = tankaData[index];
+  if (!featuredTanka) {
+    recordDiagnostic('render-tanka-missing-featured-tanka');
+    return;
+  }
   if (!item) {
     renderTankaError();
     return;

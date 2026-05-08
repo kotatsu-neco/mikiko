@@ -1,6 +1,6 @@
 ## 原因
 
-PC版ファーストビューの表示崩れは、逐字表示のために短歌本文を1文字ごとの `span.tanka-unit` に分割し、`.poem-body` と各文字単位を flex 要素として扱っていたことが主因です。
+PC版ファーストビューの表示崩れは、逐字表示のために短歌本文を1文字ごとの `span.tanka-unit` に分割し、`.tanka-body` と各文字単位を flex 要素として扱っていたことが主因です。
 
 このため、本文に指定した `writing-mode: vertical-rl` の自然な縦書き組版ではなく、flex 子要素として文字が配置され、短歌本文が縦書きとして成立しない状態になっていました。
 
@@ -14,9 +14,9 @@ PC版ファーストビューの表示崩れは、逐字表示のために短歌
   - `1/7` の視覚表示を削除し、現在位置はスクリーンリーダー向けの `aria-live` テキストだけに残しました。
 
 - `styles.css`
-  - `.poem-body` を通常の縦書き本文に戻し、`writing-mode: vertical-rl`、`text-orientation: mixed`、`line-height`、`letter-spacing` を指定しました。
-  - 本文と出典を同じ `.poem-layout` 内の表示グループとして扱い、グループ自体を中央配置するため `width: fit-content` と中央配置の flex レイアウトに変更しました。
-  - `.poem-layout` は `flex-direction: row-reverse`、`align-items: flex-end` とし、出典が本文の左側に出つつ、本文下端と出典下端が揃う構造にしました。
+  - `.tanka-body` を通常の縦書き本文に戻し、`writing-mode: vertical-rl`、`text-orientation: mixed`、`line-height`、`letter-spacing` を指定しました。
+  - 本文と出典を同じ `.tanka-layout` 内の表示グループとして扱い、グループ自体を中央配置するため `width: fit-content` と中央配置の flex レイアウトに変更しました。
+  - `.tanka-layout` は `flex-direction: row-reverse`、`align-items: flex-end` とし、出典が本文の左側に出つつ、本文下端と出典下端が揃う構造にしました。
   - ヘッダーは固定フロートをやめ、透明・小さめ・影なしの absolute 配置にして、短歌鑑賞の邪魔にならないよう弱めました。
 
 - `script.js`
@@ -60,9 +60,9 @@ PC版ファーストビューの表示崩れは、逐字表示のために短歌
 
 ## 下端揃え
 
-本文と出典は同じ `.poem-layout` の中に置き、縦書きの本文を右、出典を左に並べています。
+本文と出典は同じ `.tanka-layout` の中に置き、縦書きの本文を右、出典を左に並べています。
 
-`.poem-layout` は `align-items: flex-end` を使うため、本文の最下端と出典の最下端が同じ表示グループ内で揃う構造です。出典だけを絶対配置で後から動かす処理は削除しました。
+`.tanka-layout` は `align-items: flex-end` を使うため、本文の最下端と出典の最下端が同じ表示グループ内で揃う構造です。出典だけを絶対配置で後から動かす処理は削除しました。
 
 ## 確認済み
 
@@ -71,7 +71,7 @@ PC版ファーストビューの表示崩れは、逐字表示のために短歌
   - `data/tanka.json` / `data/books.json` は維持し、短歌本文・出典は変更していません。
   - 短歌本文はHTML直書きに戻さず、JSONから読み込む構造を維持しています。
   - `data/tanka.json` / `data/books.json` は `python3 -m json.tool` でJSONとして妥当であることを確認しました。
-  - 旧逐字表示用の `tanka-unit` / `data-animating` / `startPoemAnimation` は現行コードからなくなっています。
+  - 旧逐字表示用の `tanka-unit` / `data-animating` / `startTankaAnimation` は現行コードからなくなっています。
 
 - ローカルサーバー確認
   - `python3 -m http.server 8000` を起動しました。
