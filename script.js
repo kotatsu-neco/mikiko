@@ -1,4 +1,3 @@
-
 const FALLBACK_TANKA = [
   {
     id: 'selected_001',
@@ -106,10 +105,12 @@ let booksData = [];
 let currentIndex = 0;
 let fitRaf = null;
 let headerTimer = null;
+let activeAnimation = null;
 const headerHideDelay = 2400;
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 function sanitizePoemHtml(html) {
-  return html.replace(/<(?!\/?(ruby|rt|rp))[^>]*>/g, '');
+  return html.replace(/<(?!\/?(ruby|rt|rp)\b)[^>]*>/g, '');
 }
 
 function countVisibleChars(text) {
@@ -123,9 +124,7 @@ function countRuby(body) {
 async function loadJson(path, fallback) {
   try {
     const response = await fetch(path, { cache: 'no-store' });
-    if (!response.ok) {
-      throw new Error(`${path}: ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`${path}: ${response.status}`);
     return await response.json();
   } catch (error) {
     console.warn(`Failed to load ${path}. Using fallback data.`, error);
@@ -155,20 +154,15 @@ function renderPoemError() {
       <p>時間をおいて再読み込みしてください。</p>
     </div>
   `;
-  counter.textContent = '';
+  if (counter) counter.textContent = '';
 }
 
 function estimateBaseFont(charCount, rubyCount, viewportWidth, viewportHeight) {
   let size;
-  if (viewportWidth <= 430) {
-    size = charCount >= 34 ? 25 : charCount >= 31 ? 27 : 29;
-  } else if (viewportWidth <= 768) {
-    size = charCount >= 34 ? 29 : charCount >= 31 ? 31 : 33;
-  } else if (viewportWidth <= 1100) {
-    size = charCount >= 34 ? 33 : charCount >= 31 ? 35 : 37;
-  } else {
-    size = charCount >= 34 ? 36 : charCount >= 31 ? 38 : 40;
-  }
+  if (viewportWidth <= 430) size = charCount >= 34 ? 25 : charCount >= 31 ? 27 : 29;
+  else if (viewportWidth <= 768) size = charCount >= 34 ? 29 : charCount >= 31 ? 31 : 33;
+  else if (viewportWidth <= 1100) size = charCount >= 34 ? 33 : charCount >= 31 ? 35 : 37;
+  else size = charCount >= 34 ? 36 : charCount >= 31 ? 38 : 40;
   size -= Math.min(3, rubyCount);
   if (viewportHeight <= 700) size -= 2;
   return size;
@@ -179,10 +173,8 @@ function placeSource(layout, body, source) {
   const bodyRect = body.getBoundingClientRect();
   const sourceRect = source.getBoundingClientRect();
   const gap = window.innerWidth <= 640 ? 16 : 24;
-
   const left = Math.max(8, bodyRect.left - layoutRect.left - sourceRect.width - gap);
   const top = Math.max(8, bodyRect.bottom - layoutRect.top - sourceRect.height);
-
   source.style.left = `${left}px`;
   source.style.top = `${top}px`;
 }
@@ -217,9 +209,7 @@ function fitCurrentPoem() {
     source.style.top = '0px';
     const bodyRect = body.getBoundingClientRect();
     const sourceRect = source.getBoundingClientRect();
-
     const fits = bodyRect.height <= availableHeight && bodyRect.width <= availableBodyWidth && (bodyRect.width + sourceRect.width + 24) <= availableLayoutWidth;
-
     if (fits) {
       best = mid;
       low = mid + 1;
@@ -247,9 +237,128 @@ function fitCurrentPoem() {
 
 function scheduleFit() {
   if (fitRaf) cancelAnimationFrame(fitRaf);
-  fitRaf = requestAnimationFrame(() => {
-    fitCurrentPoem();
+  fitRaf = requestAnimationFrame(() => fitCurrentPoem());
+}
+
+function parsePoemUnits(html) {
+  const template = document.createElement('template');
+  template.innerHTML = sanitizePoemHtml(html);
+  const units = [];
+
+  function pushTextUnits(text) {
+    for (const char of [...text]) {
+      if (!char.trim()) continue;
+      units.push({ type: 'text', text: char });
+    }
+  }
+
+  function walk(node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      pushTextUnits(node.textContent || '');
+      return;
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) return;
+    const tag = node.tagName.toLowerCase();
+    if (tag === 'ruby') {
+      units.push({ type: 'ruby', html: node.outerHTML });
+      return;
+    }
+    Array.from(node.childNodes).forEach(walk);
+  }
+
+  Array.from(template.content.childNodes).forEach(walk);
+  return units;
+}
+
+function buildPoemMarkup(item) {
+  const units = parsePoemUnits(item.html);
+  const unitHtml = units.map((unit) => {
+    if (unit.type === 'ruby') return `<span class="tanka-unit" data-unit="ruby">${unit.html}</span>`;
+    return `<span class="tanka-unit" data-unit="text">${unit.text}</span>`;
+  }).join('');
+
+  return `
+    <div class="poem-layout">
+      <div class="poem-body-wrap" id="poem-body-wrap" data-animating="false" tabindex="0" role="button" aria-label="短歌表示。表示中にタップまたはEnterキーで全文表示。">
+        <p class="poem-body" aria-hidden="true">${unitHtml}</p>
+        <p class="visually-hidden poem-sr-text">${item.text}</p>
+      </div>
+      <p class="poem-source" id="poem-source">${item.sourceLabel}</p>
+    </div>
+  `;
+}
+
+function stopActiveAnimation(finalize = false) {
+  if (!activeAnimation) return;
+  const { timers = [], units = [], source, bodyWrap } = activeAnimation;
+  timers.forEach((id) => window.clearTimeout(id));
+  if (finalize) {
+    units.forEach((unit) => unit.classList.add('is-visible'));
+    source?.classList.add('is-visible');
+    if (bodyWrap) bodyWrap.dataset.animating = 'false';
+  }
+  activeAnimation = null;
+}
+
+function getAnimationTiming(unitCount) {
+  const clampedCount = Math.max(1, unitCount);
+  const raw = Math.round(2200 / clampedCount);
+  return Math.min(70, Math.max(35, raw));
+}
+
+function startPoemAnimation() {
+  stopActiveAnimation(false);
+  const bodyWrap = document.getElementById('poem-body-wrap');
+  const source = document.getElementById('poem-source');
+  if (!bodyWrap || !source) return;
+  const units = Array.from(bodyWrap.querySelectorAll('.tanka-unit'));
+  if (!units.length) {
+    source.classList.add('is-visible');
+    return;
+  }
+
+  if (reducedMotion.matches) {
+    units.forEach((unit) => unit.classList.add('is-visible'));
+    source.classList.add('is-visible');
+    bodyWrap.dataset.animating = 'false';
+    return;
+  }
+
+  units.forEach((unit) => unit.classList.remove('is-visible'));
+  source.classList.remove('is-visible');
+  bodyWrap.dataset.animating = 'true';
+
+  const delay = getAnimationTiming(units.length);
+  const timers = [];
+  units.forEach((unit, index) => {
+    const id = window.setTimeout(() => {
+      unit.classList.add('is-visible');
+    }, index * delay);
+    timers.push(id);
   });
+
+  const sourceTimer = window.setTimeout(() => {
+    source.classList.add('is-visible');
+    bodyWrap.dataset.animating = 'false';
+    activeAnimation = null;
+  }, units.length * delay + 140);
+  timers.push(sourceTimer);
+
+  const revealImmediately = () => {
+    if (!activeAnimation) return;
+    stopActiveAnimation(true);
+  };
+
+  const onBodyActivate = (event) => {
+    if (!bodyWrap.dataset.animating || bodyWrap.dataset.animating !== 'true') return;
+    if (event.type === 'keydown' && !['Enter', ' '].includes(event.key)) return;
+    event.preventDefault();
+    revealImmediately();
+  };
+
+  bodyWrap.onclick = onBodyActivate;
+  bodyWrap.onkeydown = onBodyActivate;
+  activeAnimation = { timers, units, source, bodyWrap };
 }
 
 function renderPoem(index) {
@@ -259,21 +368,18 @@ function renderPoem(index) {
     return;
   }
 
-  featuredPoem.innerHTML = `
-    <div class="poem-layout">
-      <div class="poem-body-wrap">
-        <p class="poem-body">${sanitizePoemHtml(item.html)}</p>
-      </div>
-      <p class="poem-source">${item.sourceLabel}</p>
-    </div>
-  `;
-
-  counter.textContent = `${index + 1} / ${tankaData.length}`;
+  featuredPoem.innerHTML = buildPoemMarkup(item);
+  if (counter) counter.textContent = `${index + 1} / ${tankaData.length}`;
   scheduleFit();
+  requestAnimationFrame(() => {
+    scheduleFit();
+    startPoemAnimation();
+  });
 }
 
 function movePoem(delta) {
   if (!tankaData.length) return;
+  stopActiveAnimation(false);
   currentIndex = (currentIndex + delta + tankaData.length) % tankaData.length;
   renderPoem(currentIndex);
 }
@@ -338,11 +444,17 @@ document.querySelectorAll('#global-nav a').forEach((link) => {
   link.addEventListener('click', () => openNav(false));
 });
 
-window.addEventListener('resize', scheduleFit);
+window.addEventListener('resize', () => {
+  scheduleFit();
+  showHeader();
+});
 window.addEventListener('orientationchange', scheduleFit);
 document.addEventListener('keydown', maybeHandleArrowNavigation);
 ['scroll', 'wheel', 'mousemove', 'touchstart', 'touchmove', 'pointerdown', 'keydown'].forEach((eventName) => {
   window.addEventListener(eventName, showHeader, { passive: true });
+});
+reducedMotion.addEventListener?.('change', () => {
+  if (activeAnimation) stopActiveAnimation(true);
 });
 
 init();

@@ -509,3 +509,84 @@ main {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.poem-body-wrap {
+  cursor: pointer;
+}
+
+.poem-body {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.tanka-unit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 360ms ease;
+  will-change: opacity;
+}
+.tanka-unit.is-visible {
+  opacity: 1;
+}
+.tanka-unit ruby {
+  ruby-align: center;
+  ruby-position: inter-character;
+}
+
+.poem-source {
+  opacity: 0;
+  transition: opacity 420ms ease;
+}
+.poem-source.is-visible {
+  opacity: 0.96;
+}
+
+.poem-body-wrap[data-animating="true"] .poem-body {
+  cursor: pointer;
+}
+.poem-body-wrap[data-animating="true"]::after {
+  content: "タップで全文表示";
+  position: absolute;
+  inset: auto 50% -2.25rem auto;
+  transform: translateX(50%);
+  font-size: 0.74rem;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  color: var(--sub);
+  opacity: 0.82;
+  white-space: nowrap;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .poem-body-wrap[data-animating="true"]:hover::after {
+    color: var(--accent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tanka-unit,
+  .poem-source,
+  .site-header {
+    transition: none !important;
+  }
+  .poem-body-wrap[data-animating="true"]::after {
+    display: none;
+  }
+}
