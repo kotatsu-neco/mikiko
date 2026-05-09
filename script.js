@@ -1,4 +1,4 @@
-const BUILD_ID = 'v13j-cache-bust-20260509';
+const BUILD_ID = 'v13k-tanka-body-center-20260509';
 const initialLocationHash = window.location.hash;
 const shouldKeepInitialTop = !initialLocationHash || initialLocationHash === '#top';
 const initialTopLockStartedAt = performance.now();
@@ -127,7 +127,9 @@ if (missingRequiredElementIds.length) {
   console.error(`[${BUILD_ID}] Missing required elements: ${missingRequiredElementIds.join(', ')}`);
 }
 
-const DISPLAY_BREAK_UNITS = 16;
+const DESKTOP_TANKA_BREAK_UNITS = 16;
+const MOBILE_TANKA_BREAK_UNITS = 16;
+const tankaBreakMedia = window.matchMedia('(max-width: 640px)');
 const diagnosticParams = new URLSearchParams(window.location.search);
 const isScrollDebug = diagnosticParams.get('debugScroll') === '1';
 const shouldUseManualRestoration = isScrollDebug && diagnosticParams.get('manualRestoration') === '1';
@@ -152,6 +154,12 @@ if (shouldUseManualRestoration && 'scrollRestoration' in history) {
 
 window.__YKM_SCROLL_DIAGNOSTICS__ = diagnosticLogs;
 window.__YKM_BUILD_ID__ = BUILD_ID;
+
+function getDisplayBreakUnits() {
+  return tankaBreakMedia.matches ? MOBILE_TANKA_BREAK_UNITS : DESKTOP_TANKA_BREAK_UNITS;
+}
+
+window.__YKM_TANKA_BREAK_UNITS__ = getDisplayBreakUnits();
 
 function shouldPinCurrentLocationToTop() {
   return shouldKeepInitialTop && (!location.hash || location.hash === '#top');
@@ -344,9 +352,11 @@ function getDisplayUnits(html) {
 }
 
 function buildFixedBreakTankaHtml(html) {
+  const displayBreakUnits = getDisplayBreakUnits();
+  window.__YKM_TANKA_BREAK_UNITS__ = displayBreakUnits;
   return getDisplayUnits(html).map((unit, index) => {
     const value = unit.type === 'html' ? unit.value : escapeHtml(unit.value);
-    const shouldBreak = (index + 1) === DISPLAY_BREAK_UNITS;
+    const shouldBreak = (index + 1) === displayBreakUnits;
     return shouldBreak ? `${value}<br class="tanka-break">` : value;
   }).join('');
 }
@@ -413,7 +423,7 @@ function renderTanka(index) {
 
   featuredTanka.innerHTML = buildTankaMarkup(item);
   if (counter) counter.textContent = `現在${index + 1}首目、全${tankaData.length}首`;
-  recordDiagnostic('after-render-tanka', { currentIndex: index });
+  recordDiagnostic('after-render-tanka', { currentIndex: index, displayBreakUnits: getDisplayBreakUnits() });
 }
 
 function moveTanka(delta) {
@@ -440,6 +450,7 @@ function openNav(forceOpen) {
   if (!navToggle || !globalNav) return;
   const next = typeof forceOpen === 'boolean' ? forceOpen : navToggle.getAttribute('aria-expanded') !== 'true';
   navToggle.setAttribute('aria-expanded', String(next));
+  navToggle.setAttribute('aria-label', next ? 'メニューを閉じる' : 'メニューを開く');
   globalNav.classList.toggle('is-open', next);
 }
 
@@ -497,6 +508,9 @@ document.querySelectorAll('#global-nav a').forEach((link) => {
 window.addEventListener('resize', () => {
   recordDiagnostic('resize');
   showHeader();
+});
+tankaBreakMedia.addEventListener?.('change', () => {
+  if (tankaData.length) renderTanka(currentIndex);
 });
 window.addEventListener('orientationchange', () => recordDiagnostic('orientationchange'));
 window.addEventListener('hashchange', () => recordDiagnostic('hashchange'));

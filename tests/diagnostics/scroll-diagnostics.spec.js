@@ -53,11 +53,11 @@ test.describe('scroll diagnostics mode', () => {
       await expect(page.locator('.featured-loading')).toHaveCount(0);
       await expect(page.locator('.scroll-diagnostics')).toHaveCount(0);
       await expect(page.evaluate(() => history.scrollRestoration)).resolves.toBe('manual');
-      await expect(page.evaluate(() => window.__YKM_BUILD_ID__)).resolves.toBe('v13j-cache-bust-20260509');
+      await expect(page.evaluate(() => window.__YKM_BUILD_ID__)).resolves.toBe('v13k-tanka-body-center-20260509');
 
       const urls = await assetUrls(page);
-      expect(urls.stylesheet).toBe('styles.css?v=20260509-v13j');
-      expect(urls.script).toBe('script.js?v=20260509-v13j');
+      expect(urls.stylesheet).toBe('styles.css?v=20260509-v13k2');
+      expect(urls.script).toBe('script.js?v=20260509-v13k2');
 
       if (viewport.width === 375 && viewport.height === 667) {
         await page.screenshot({ path: 'screenshots/diag_375x667_top_v13g.png', fullPage: false });
@@ -111,8 +111,8 @@ test.describe('scroll diagnostics mode', () => {
         expect(logs.some((entry) => entry.eventName === 'script-start')).toBe(true);
         expect(logs.some((entry) => entry.eventName === 'after-json-loaded')).toBe(true);
         expect(logs.some((entry) => entry.eventName === 'after-render-tanka')).toBe(true);
-        expect(logs.every((entry) => entry.buildId === 'v13j-cache-bust-20260509')).toBe(true);
-        await expect(page.locator('.scroll-diagnostics__latest')).toContainText('build=v13j-cache-bust-20260509');
+        expect(logs.every((entry) => entry.buildId === 'v13k-tanka-body-center-20260509')).toBe(true);
+        await expect(page.locator('.scroll-diagnostics__latest')).toContainText('build=v13k-tanka-body-center-20260509');
 
         if (path.includes('manualRestoration=1')) {
           expect(logs.at(-1).historyScrollRestoration).toBe('manual');
@@ -129,6 +129,7 @@ test.describe('scroll diagnostics mode', () => {
         }
 
         const panel = await rect(page, '.scroll-diagnostics');
+        const layout = await rect(page, '.tanka-layout');
         const tankaBody = await rect(page, '.tanka-body');
         const source = await rect(page, '.tanka-source');
         const prevButton = await rect(page, '#prev-tanka');
@@ -138,6 +139,10 @@ test.describe('scroll diagnostics mode', () => {
         expect(overlaps(panel, source)).toBe(false);
         expect(overlaps(panel, prevButton)).toBe(false);
         expect(overlaps(panel, nextButton)).toBe(false);
+        expect(tankaBody.left).toBeGreaterThanOrEqual(layout.left - 2);
+        expect(tankaBody.right).toBeLessThanOrEqual(layout.right + 2);
+        expect(source.left).toBeGreaterThanOrEqual(layout.left - 2);
+        expect(source.right).toBeLessThanOrEqual(layout.right + 2);
 
         if (viewport.width === 390 && viewport.height === 844 && path === '/?debugScroll=1') {
           await page.screenshot({ path: 'screenshots/diag_390x844_debug_v13g.png', fullPage: false });

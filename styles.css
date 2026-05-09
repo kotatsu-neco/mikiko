@@ -15,6 +15,7 @@
   --featured-controls-height: 82px;
   --header-offset: 18px;
   --tanka-gap: 24px;
+  --tanka-layout-width: min(86vw, 720px);
   --site-width: min(1200px, calc(100vw - 32px));
   --body-font: "BIZ UDPGothic", "BIZ UDGothic", "Yu Gothic UI", "YuGothic", "Hiragino Sans", "Meiryo", "Noto Sans JP", sans-serif;
   --tanka-font: "BIZ UDPMincho", "BIZ UDMincho Medium", "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif JP", serif;
@@ -129,6 +130,7 @@ a:focus-visible { color: var(--accent); }
   flex-direction: column;
   gap: 4px;
   cursor: pointer;
+  position: relative;
 }
 .nav-toggle span {
   display: block;
@@ -136,6 +138,17 @@ a:focus-visible { color: var(--accent); }
   height: 2px;
   border-radius: 999px;
   background: var(--ink);
+  transform-origin: center;
+  transition: transform 180ms ease, opacity 160ms ease;
+}
+.nav-toggle[aria-expanded="true"] span:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+.nav-toggle[aria-expanded="true"] span:nth-child(2) {
+  opacity: 0;
+}
+.nav-toggle[aria-expanded="true"] span:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
 }
 
 main {
@@ -218,19 +231,24 @@ main {
   color: var(--sub);
 }
 .tanka-layout {
-  width: fit-content;
-  max-width: min(92vw, 720px);
+  width: var(--tanka-layout-width);
   max-height: calc(100svh - var(--featured-controls-height) - 74px);
-  display: flex;
-  flex-direction: row-reverse;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content minmax(0, 1fr);
+  grid-template-areas: "source body spacer";
   align-items: flex-end;
   justify-content: center;
-  gap: clamp(18px, 3vw, 34px);
+  column-gap: clamp(18px, 3vw, 34px);
+  margin-inline: auto;
+  overflow: visible;
 }
 .tanka-body-wrap {
-  display: block;
+  grid-area: body;
+  display: grid;
+  justify-items: center;
+  justify-self: center;
   min-width: 0;
-  max-width: min(58vw, 34rem);
+  max-width: none;
   z-index: 1;
 }
 .tanka-body {
@@ -243,6 +261,8 @@ main {
   letter-spacing: 0.08em;
   font-size: clamp(1.5rem, 3.2svh, 2.3rem);
   max-height: min(66svh, 680px);
+  width: max-content;
+  max-width: calc(var(--tanka-layout-width) - 7rem);
   overflow-wrap: normal;
 }
 .tanka-body ruby {
@@ -256,6 +276,9 @@ main {
   letter-spacing: 0;
 }
 .tanka-source {
+  grid-area: source;
+  align-self: end;
+  justify-self: end;
   margin: 0;
   font-family: var(--body-font);
   writing-mode: vertical-rl;
@@ -444,6 +467,7 @@ main {
     --header-height: 64px;
     --featured-controls-height: 104px;
     --tanka-gap: 18px;
+    --tanka-layout-width: calc(100vw - 40px);
   }
   body {
     font-size: 15px;
@@ -466,17 +490,24 @@ main {
     min-height: calc(100svh - 42px);
   }
   .tanka-layout {
-    width: fit-content;
-    max-width: calc(100vw - 28px);
+    width: var(--tanka-layout-width);
     max-height: calc(100svh - var(--featured-controls-height) - 64px);
-    gap: 14px;
+    grid-template-columns: minmax(0, 1fr) max-content minmax(0, 1fr);
+    column-gap: 12px;
   }
   .tanka-body-wrap {
-    max-width: min(72vw, 24rem);
+    max-width: none;
   }
   .tanka-body {
-    font-size: clamp(1.25rem, 3.1svh, 1.7rem);
+    font-size: clamp(1.12rem, 2.75svh, 1.48rem);
+    line-height: 1.72;
+    letter-spacing: 0.055em;
     max-height: min(62svh, 560px);
+    max-width: calc(var(--tanka-layout-width) - 5.2rem);
+  }
+  .tanka-source {
+    font-size: clamp(0.72rem, 1.32svh, 0.82rem);
+    line-height: 1.55;
   }
   .featured-controls {
     gap: 10px;
@@ -593,6 +624,9 @@ main {
 
 @media (prefers-reduced-motion: reduce) {
   .site-header {
+    transition: none !important;
+  }
+  .nav-toggle span {
     transition: none !important;
   }
 }
