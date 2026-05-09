@@ -1,4 +1,4 @@
-const BUILD_ID = 'v13k-tanka-body-center-20260509';
+const BUILD_ID = 'v13l-ui-books-20260509';
 const initialLocationHash = window.location.hash;
 const shouldKeepInitialTop = !initialLocationHash || initialLocationHash === '#top';
 const initialTopLockStartedAt = performance.now();
@@ -93,15 +93,16 @@ const FALLBACK_TANKA = [
 ];
 
 const FALLBACK_BOOKS = [
-  { id: 'jukano_hitori_no_nemuri', title: '樹下のひとりの眠りのために', type: '歌集', year: '', publisher: '', purchaseUrl: '', description: '' },
-  { id: 'mizuwo_hiraku_te', title: '水をひらく手', type: '歌集', year: '', publisher: '', purchaseUrl: '', description: '' },
-  { id: 'hanano_senga', title: '花の線画', type: '歌集', year: '', publisher: '', purchaseUrl: '', description: '' },
-  { id: 'kinno_ame', title: '金の雨', type: '歌集', year: '', publisher: '', purchaseUrl: '', description: '' },
-  { id: 'gogo_no_cho', title: '午後の蝶', type: '歌集', year: '', publisher: '', purchaseUrl: '', description: '' },
-  { id: 'toku_koirimasu', title: 'とく来りませ', type: '歌集', year: '', publisher: '', purchaseUrl: '', description: '' },
-  { id: 'selection_kajin_30', title: 'セレクション歌人30 横山未来子集', type: '歌文集', year: '', publisher: '', purchaseUrl: '', description: '' },
-  { id: 'hajimete_no_yasashii_tanka', title: 'はじめてのやさしい短歌のつくりかた', type: '著書', year: '', publisher: '', purchaseUrl: '', description: '' },
-  { id: 'ichiban_yasashii_tanka', title: 'のんびり読んで、すんなり身につく　いちばんやさしい短歌', type: '著書', year: '', publisher: '', purchaseUrl: '', description: '' }
+  { id: 'jukano_hitori_no_nemuri', title: '樹下のひとりの眠りのために', type: '歌集', seriesLabel: '第一歌集', year: '', publisher: '短歌研究社', purchaseUrl: '', description: '' },
+  { id: 'mizuwo_hiraku_te', title: '水をひらく手', type: '歌集', seriesLabel: '第二歌集', year: '', publisher: '短歌研究社', purchaseUrl: '', description: '' },
+  { id: 'hanano_senga', title: '花の線画', type: '歌集', seriesLabel: '第三歌集', year: '', publisher: '青磁社', purchaseUrl: '', description: '' },
+  { id: 'kinno_ame', title: '金の雨', type: '歌集', seriesLabel: '第四歌集', year: '', publisher: '短歌研究社', purchaseUrl: '', description: '' },
+  { id: 'gogo_no_cho', title: '午後の蝶', type: '歌集', seriesLabel: '第五歌集', year: '', publisher: 'ふらんす堂', purchaseUrl: '', description: '' },
+  { id: 'toku_koirimasu', title: 'とく来りませ', type: '歌集', seriesLabel: '第六歌集', year: '', publisher: '砂子屋書房', purchaseUrl: '', description: '' },
+  { id: 'selection_kajin_30', title: 'セレクション歌人 30横山未来子集', type: 'その他著書', year: '', publisher: '邑書林', purchaseUrl: '', description: '' },
+  { id: 'hajimete_no_yasashii_tanka', title: 'はじめてのやさしい短歌のつくりかた', type: 'その他著書', year: '', publisher: '日本文芸社', purchaseUrl: '', description: '' },
+  { id: 'ichiban_yasashii_tanka', title: 'のんびり読んで、すんなり身につく　いちばんやさしい短歌', type: 'その他著書', year: '', publisher: '日本文芸社', purchaseUrl: '', description: '' },
+  { id: 'alkali_iro_no_kumo', title: 'アルカリ色のくも　宮沢賢治の青春短歌を読む', type: 'その他著書', year: '', publisher: 'NHK出版', collaboration: '共著', purchaseUrl: '', description: '' }
 ];
 
 const featuredTanka = document.getElementById('featured-tanka');
@@ -138,14 +139,11 @@ const shouldForceTop = isScrollDebug && diagnosticParams.get('forceTop') === '1'
 let tankaData = [];
 let booksData = [];
 let currentIndex = 0;
-let headerTimer = null;
 let diagnosticPanel = null;
 let diagnosticLatest = null;
 let diagnosticEvents = null;
 let diagnosticTextarea = null;
 let scrollLogTimer = null;
-let lastHeaderLogAt = 0;
-const headerHideDelay = 2400;
 const diagnosticLogs = [];
 
 if (shouldUseManualRestoration && 'scrollRestoration' in history) {
@@ -374,14 +372,28 @@ async function loadJson(path, fallback) {
 
 function renderWorks(books) {
   if (!worksGrid) return;
-  const order = ['歌集', '歌文集', '著書'];
-  const groups = order.map((type) => ({ type, items: books.filter((book) => book.type === type) }));
+  const order = ['歌集', 'その他著書'];
+  const groups = order
+    .map((type) => ({ type, items: books.filter((book) => book.type === type) }))
+    .filter((group) => group.items.length);
   worksGrid.innerHTML = groups.map((group) => {
-    const items = group.items.map((item) => `<li>${item.title ? `『${item.title.replace(/^『|』$/g, '')}』` : ''}</li>`).join('');
+    const items = group.items.map((item) => {
+      const title = escapeHtml((item.title || '').replace(/^『|』$/g, ''));
+      const seriesLabel = item.seriesLabel ? `<span class="work-label">${escapeHtml(item.seriesLabel)}</span>` : '';
+      const collaboration = item.collaboration ? `<span class="work-collaboration">（${escapeHtml(item.collaboration)}）</span>` : '';
+      const publisher = item.publisher ? `<span class="work-publisher">${escapeHtml(item.publisher)}</span>` : '';
+      return `
+        <li class="work-item">
+          ${seriesLabel}
+          <span class="work-title">『${title}』</span>
+          <span class="work-meta">${collaboration}${publisher}</span>
+        </li>
+      `;
+    }).join('');
     return `
       <article class="works-group">
         <h3>${group.type}</h3>
-        <ul>${items}</ul>
+        <ul class="works-list">${items}</ul>
       </article>
     `;
   }).join('');
@@ -456,17 +468,7 @@ function openNav(forceOpen) {
 
 function showHeader() {
   siteHeader?.classList.remove('is-hidden');
-  const now = performance.now();
-  if (now - lastHeaderLogAt > 200) {
-    recordDiagnostic('after-header-show');
-    lastHeaderLogAt = now;
-  }
-  if (headerTimer) window.clearTimeout(headerTimer);
-  headerTimer = window.setTimeout(() => {
-    if (window.scrollY < window.innerHeight * 0.9 && navToggle?.getAttribute('aria-expanded') !== 'true') {
-      siteHeader?.classList.add('is-hidden');
-    }
-  }, headerHideDelay);
+  recordDiagnostic('after-header-show');
 }
 
 async function init() {

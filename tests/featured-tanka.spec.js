@@ -60,10 +60,10 @@ async function getHeroMetrics(page) {
   });
 }
 
-async function saveV13kScreenshot(page, viewport) {
+async function saveV13lScreenshot(page, viewport) {
   if (['mobile_375', 'mobile_390', 'mobile_430', 'desktop_1366'].includes(viewport.name)) {
     await page.screenshot({
-      path: `screenshots/v13k_chromium_${viewport.name}_top.png`,
+      path: `screenshots/v13l_chromium_${viewport.name}_top.png`,
       fullPage: false
     });
   }
@@ -109,7 +109,7 @@ test.describe('featured tanka hero', () => {
             path: `screenshots/v13_fix_chromium_${viewport.name}_top.png`,
             fullPage: false
           });
-          await saveV13kScreenshot(page, viewport);
+          await saveV13lScreenshot(page, viewport);
         }
 
         if (index < 6) {
@@ -171,5 +171,60 @@ test.describe('featured tanka hero', () => {
     await page.locator('.nav-toggle').click();
     await expect(page.locator('.nav-toggle')).toHaveAttribute('aria-expanded', 'false');
     await expect(page.locator('.nav-toggle')).toHaveAttribute('aria-label', 'メニューを開く');
+  });
+
+  test('mobile nav toggle stays fixed after scrolling', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    await expect(page.locator('.tanka-body')).toBeVisible();
+
+    const before = await page.locator('.nav-toggle').boundingBox();
+    await page.waitForTimeout(1700);
+    await page.evaluate(() => window.scrollTo(0, document.querySelector('#works').offsetTop));
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(500);
+    const after = await page.locator('.nav-toggle').boundingBox();
+
+    expect(after.x).toBeCloseTo(before.x, 1);
+    expect(after.y).toBeCloseTo(before.y, 1);
+    await page.locator('.nav-toggle').click();
+    await expect(page.locator('.nav-toggle')).toHaveAttribute('aria-expanded', 'true');
+    await expect(page.locator('#global-nav')).toHaveClass(/is-open/);
+  });
+
+  test('section headings are quiet and works data is rendered as specified', async ({ page }) => {
+    await page.setViewportSize({ width: 1366, height: 768 });
+    await page.goto('/');
+    await expect(page.locator('.tanka-body')).toBeVisible();
+
+    const headingFontSize = await page.locator('#works-heading').evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize));
+    const eyebrowFontSize = await page.locator('#works .eyebrow').evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize));
+    expect(headingFontSize).toBeLessThanOrEqual(30);
+    expect(eyebrowFontSize).toBeLessThanOrEqual(12);
+
+    await expect(page.locator('#works')).toContainText('第一歌集');
+    await expect(page.locator('#works')).toContainText('『樹下のひとりの眠りのために』');
+    await expect(page.locator('#works')).toContainText('短歌研究社');
+    await expect(page.locator('#works')).toContainText('第二歌集');
+    await expect(page.locator('#works')).toContainText('『水をひらく手』');
+    await expect(page.locator('#works')).toContainText('第三歌集');
+    await expect(page.locator('#works')).toContainText('『花の線画』');
+    await expect(page.locator('#works')).toContainText('青磁社');
+    await expect(page.locator('#works')).toContainText('第四歌集');
+    await expect(page.locator('#works')).toContainText('『金の雨』');
+    await expect(page.locator('#works')).toContainText('第五歌集');
+    await expect(page.locator('#works')).toContainText('『午後の蝶』');
+    await expect(page.locator('#works')).toContainText('ふらんす堂');
+    await expect(page.locator('#works')).toContainText('第六歌集');
+    await expect(page.locator('#works')).toContainText('『とく来りませ』');
+    await expect(page.locator('#works')).toContainText('砂子屋書房');
+    await expect(page.locator('#works')).toContainText('その他著書');
+    await expect(page.locator('#works')).toContainText('『セレクション歌人 30横山未来子集』');
+    await expect(page.locator('#works')).toContainText('邑書林');
+    await expect(page.locator('#works')).toContainText('『はじめてのやさしい短歌のつくりかた』');
+    await expect(page.locator('#works')).toContainText('日本文芸社');
+    await expect(page.locator('#works')).toContainText('『のんびり読んで、すんなり身につく　いちばんやさしい短歌』');
+    await expect(page.locator('#works')).toContainText('『アルカリ色のくも　宮沢賢治の青春短歌を読む』');
+    await expect(page.locator('#works')).toContainText('（共著）');
+    await expect(page.locator('#works')).toContainText('NHK出版');
   });
 });
