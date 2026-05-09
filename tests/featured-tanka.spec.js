@@ -1,4 +1,6 @@
 const { test, expect } = require('@playwright/test');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const VIEWPORTS = [
   { name: 'mobile_375', width: 375, height: 667 },
@@ -60,10 +62,10 @@ async function getHeroMetrics(page) {
   });
 }
 
-async function saveV13lScreenshot(page, viewport) {
+async function saveV13mScreenshot(page, viewport) {
   if (['mobile_375', 'mobile_390', 'mobile_430', 'desktop_1366'].includes(viewport.name)) {
     await page.screenshot({
-      path: `screenshots/v13l_chromium_${viewport.name}_top.png`,
+      path: `screenshots/v13m_chromium_${viewport.name}_top.png`,
       fullPage: false
     });
   }
@@ -109,7 +111,7 @@ test.describe('featured tanka hero', () => {
             path: `screenshots/v13_fix_chromium_${viewport.name}_top.png`,
             fullPage: false
           });
-          await saveV13lScreenshot(page, viewport);
+          await saveV13mScreenshot(page, viewport);
         }
 
         if (index < 6) {
@@ -198,8 +200,12 @@ test.describe('featured tanka hero', () => {
 
     const headingFontSize = await page.locator('#works-heading').evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize));
     const eyebrowFontSize = await page.locator('#works .eyebrow').evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize));
-    expect(headingFontSize).toBeLessThanOrEqual(30);
-    expect(eyebrowFontSize).toBeLessThanOrEqual(12);
+    expect(headingFontSize).toBeLessThanOrEqual(25);
+    expect(eyebrowFontSize).toBeLessThanOrEqual(10);
+
+    const workTitleFontFamily = await page.locator('.work-title').first().evaluate((element) => getComputedStyle(element).fontFamily);
+    expect(workTitleFontFamily).not.toContain('Mincho');
+    expect(workTitleFontFamily).not.toContain('Serif');
 
     await expect(page.locator('#works')).toContainText('第一歌集');
     await expect(page.locator('#works')).toContainText('『樹下のひとりの眠りのために』');
@@ -226,5 +232,24 @@ test.describe('featured tanka hero', () => {
     await expect(page.locator('#works')).toContainText('『アルカリ色のくも　宮沢賢治の青春短歌を読む』');
     await expect(page.locator('#works')).toContainText('（共著）');
     await expect(page.locator('#works')).toContainText('NHK出版');
+
+    const alkaliText = await page.locator('.work-item').filter({ hasText: 'アルカリ色のくも' }).textContent();
+    expect(alkaliText.replace(/\s+/g, ' ')).toContain('『アルカリ色のくも 宮沢賢治の青春短歌を読む』（共著） NHK出版');
+  });
+
+  test('book cover assets are stored but not displayed yet', async ({ page }) => {
+    const coverPaths = [
+      'assets/books/gogo_no_cho_cover.webp',
+      'assets/books/toku_koirimasu_cover.webp'
+    ];
+    for (const coverPath of coverPaths) {
+      expect(fs.existsSync(path.join(process.cwd(), coverPath))).toBe(true);
+    }
+
+    await page.setViewportSize({ width: 1366, height: 768 });
+    await page.goto('/');
+    await expect(page.locator('.tanka-body')).toBeVisible();
+    const displayedBookImages = await page.locator('img[src^="assets/books/"]').count();
+    expect(displayedBookImages).toBe(0);
   });
 });

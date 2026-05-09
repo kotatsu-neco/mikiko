@@ -1,4 +1,4 @@
-const BUILD_ID = 'v13l-ui-books-20260509';
+const BUILD_ID = 'v13m-design-books-20260509';
 const initialLocationHash = window.location.hash;
 const shouldKeepInitialTop = !initialLocationHash || initialLocationHash === '#top';
 const initialTopLockStartedAt = performance.now();
@@ -385,8 +385,8 @@ function renderWorks(books) {
       return `
         <li class="work-item">
           ${seriesLabel}
-          <span class="work-title">『${title}』</span>
-          <span class="work-meta">${collaboration}${publisher}</span>
+          <span class="work-title-line"><span class="work-title">『${title}』</span>${collaboration}</span>
+          <span class="work-meta">${publisher}</span>
         </li>
       `;
     }).join('');

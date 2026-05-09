@@ -94,18 +94,19 @@ a:focus-visible { color: var(--accent); }
 
 .brand {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: baseline;
+  gap: 10px;
+  max-width: calc(100vw - 92px);
 }
 .brand-ja {
-  font-size: 1.05rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  font-size: clamp(1.08rem, 1.55vw, 1.28rem);
+  font-weight: 800;
+  letter-spacing: 0.1em;
 }
 .brand-en {
-  font-size: 0.66rem;
+  font-size: 0.62rem;
   color: var(--sub);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
 }
 
 .global-nav {
@@ -165,17 +166,17 @@ main {
 }
 .section-heading {
   display: grid;
-  gap: 4px;
-  margin-bottom: 22px;
+  gap: 3px;
+  margin-bottom: 20px;
 }
 .section-heading.center { text-align: center; }
-.section-heading.narrow { max-width: 760px; margin-inline: auto; margin-bottom: 22px; }
+.section-heading.narrow { max-width: 760px; margin-inline: auto; margin-bottom: 20px; }
 .eyebrow {
   margin: 0;
-  font-size: 0.64rem;
-  letter-spacing: 0.1em;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(80, 71, 64, 0.72);
+  color: rgba(80, 71, 64, 0.6);
   font-weight: 600;
 }
 .section-heading h2,
@@ -187,7 +188,7 @@ main {
   line-height: 1.45;
 }
 .section-heading h2 {
-  font-size: clamp(1.32rem, 2.1vw, 1.85rem);
+  font-size: clamp(1.18rem, 1.75vw, 1.52rem);
   font-weight: 600;
   letter-spacing: 0.02em;
 }
@@ -379,7 +380,7 @@ main {
 }
 .works-group h3 {
   margin: 0 0 16px;
-  font-size: 1.02rem;
+  font-size: 0.98rem;
   font-weight: 700;
   letter-spacing: 0.04em;
 }
@@ -401,15 +402,23 @@ main {
 .work-label,
 .work-meta {
   color: var(--sub);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
+}
+.work-title-line {
+  display: block;
+  font-family: var(--body-font);
+  line-height: 1.68;
 }
 .work-title {
-  font-family: var(--tanka-font);
-  font-size: 1.02rem;
-  line-height: 1.65;
+  font-family: var(--body-font);
+  font-size: 0.98rem;
+  font-weight: 600;
 }
 .work-collaboration {
-  margin-right: 0.35em;
+  margin-left: 0.08em;
+  color: var(--ink);
+  font-size: 0.92rem;
+  font-weight: 600;
 }
 
 .beginners-grid {
@@ -521,10 +530,15 @@ main {
     padding: 12px 14px;
   }
   .brand-ja {
-    font-size: 0.96rem;
+    font-size: 1.02rem;
   }
   .brand-en {
     font-size: 0.58rem;
+  }
+  .brand {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 1px;
   }
   .featured-hero {
     padding-top: 24px;
@@ -576,10 +590,10 @@ main {
     margin-bottom: 18px;
   }
   .section-heading h2 {
-    font-size: clamp(1.24rem, 6vw, 1.48rem);
+    font-size: clamp(1.12rem, 5.2vw, 1.32rem);
   }
   .eyebrow {
-    font-size: 0.6rem;
+    font-size: 0.56rem;
   }
   .profile-copy,
   .plain-card,
