@@ -46,6 +46,7 @@
     "seriesLabel": "第五歌集",
     "year": "",
     "publisher": "ふらんす堂",
+    "coverImage": "assets/books/gogo_no_cho_cover.webp",
     "purchaseUrl": "",
     "description": ""
   },
@@ -56,6 +57,7 @@
     "seriesLabel": "第六歌集",
     "year": "",
     "publisher": "砂子屋書房",
+    "coverImage": "assets/books/toku_koirimasu_cover.webp",
     "purchaseUrl": "",
     "description": ""
   },

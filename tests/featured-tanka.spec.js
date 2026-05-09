@@ -62,10 +62,10 @@ async function getHeroMetrics(page) {
   });
 }
 
-async function saveV13mScreenshot(page, viewport) {
+async function saveV13nScreenshot(page, viewport) {
   if (['mobile_375', 'mobile_390', 'mobile_430', 'desktop_1366'].includes(viewport.name)) {
     await page.screenshot({
-      path: `screenshots/v13m_chromium_${viewport.name}_top.png`,
+      path: `screenshots/v13n_chromium_${viewport.name}_top.png`,
       fullPage: false
     });
   }
@@ -111,7 +111,7 @@ test.describe('featured tanka hero', () => {
             path: `screenshots/v13_fix_chromium_${viewport.name}_top.png`,
             fullPage: false
           });
-          await saveV13mScreenshot(page, viewport);
+          await saveV13nScreenshot(page, viewport);
         }
 
         if (index < 6) {
@@ -237,7 +237,39 @@ test.describe('featured tanka hero', () => {
     expect(alkaliText.replace(/\s+/g, ' ')).toContain('『アルカリ色のくも 宮沢賢治の青春短歌を読む』（共著） NHK出版');
   });
 
-  test('book cover assets are stored but not displayed yet', async ({ page }) => {
+  test('left rail, work columns, and desktop covers are aligned', async ({ page }) => {
+    await page.setViewportSize({ width: 1366, height: 768 });
+    await page.goto('/');
+    await expect(page.locator('.tanka-body')).toBeVisible();
+
+    const metrics = await page.evaluate(() => {
+      const box = (selector) => {
+        const rect = document.querySelector(selector).getBoundingClientRect();
+        return {
+          left: rect.left,
+          width: rect.width
+        };
+      };
+      return {
+        brand: box('.brand'),
+        profileHeading: box('#profile .section-heading'),
+        worksHeading: box('#works .section-heading'),
+        worksGroupWidths: Array.from(document.querySelectorAll('.works-group')).map((element) => element.getBoundingClientRect().width)
+      };
+    });
+
+    expect(Math.abs(metrics.brand.left - metrics.profileHeading.left)).toBeLessThanOrEqual(1);
+    expect(Math.abs(metrics.brand.left - metrics.worksHeading.left)).toBeLessThanOrEqual(1);
+    expect(Math.abs(metrics.worksGroupWidths[0] - metrics.worksGroupWidths[1])).toBeLessThanOrEqual(1);
+
+    await expect(page.getByAltText('『午後の蝶』書影')).toBeVisible();
+    await expect(page.getByAltText('『とく来りませ』書影')).toBeVisible();
+    const coverWidth = await page.getByAltText('『午後の蝶』書影').evaluate((element) => element.getBoundingClientRect().width);
+    expect(coverWidth).toBeGreaterThanOrEqual(72);
+    expect(coverWidth).toBeLessThanOrEqual(96);
+  });
+
+  test('book cover assets are stored and hidden on mobile', async ({ page }) => {
     const coverPaths = [
       'assets/books/gogo_no_cho_cover.webp',
       'assets/books/toku_koirimasu_cover.webp'
@@ -246,10 +278,10 @@ test.describe('featured tanka hero', () => {
       expect(fs.existsSync(path.join(process.cwd(), coverPath))).toBe(true);
     }
 
-    await page.setViewportSize({ width: 1366, height: 768 });
+    await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/');
     await expect(page.locator('.tanka-body')).toBeVisible();
-    const displayedBookImages = await page.locator('img[src^="assets/books/"]').count();
+    const displayedBookImages = await page.locator('img[src^="assets/books/"]:visible').count();
     expect(displayedBookImages).toBe(0);
   });
 });

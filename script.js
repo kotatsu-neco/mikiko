@@ -1,4 +1,4 @@
-const BUILD_ID = 'v13m-design-books-20260509';
+const BUILD_ID = 'v13n-layout-books-20260509';
 const initialLocationHash = window.location.hash;
 const shouldKeepInitialTop = !initialLocationHash || initialLocationHash === '#top';
 const initialTopLockStartedAt = performance.now();
@@ -97,8 +97,8 @@ const FALLBACK_BOOKS = [
   { id: 'mizuwo_hiraku_te', title: '水をひらく手', type: '歌集', seriesLabel: '第二歌集', year: '', publisher: '短歌研究社', purchaseUrl: '', description: '' },
   { id: 'hanano_senga', title: '花の線画', type: '歌集', seriesLabel: '第三歌集', year: '', publisher: '青磁社', purchaseUrl: '', description: '' },
   { id: 'kinno_ame', title: '金の雨', type: '歌集', seriesLabel: '第四歌集', year: '', publisher: '短歌研究社', purchaseUrl: '', description: '' },
-  { id: 'gogo_no_cho', title: '午後の蝶', type: '歌集', seriesLabel: '第五歌集', year: '', publisher: 'ふらんす堂', purchaseUrl: '', description: '' },
-  { id: 'toku_koirimasu', title: 'とく来りませ', type: '歌集', seriesLabel: '第六歌集', year: '', publisher: '砂子屋書房', purchaseUrl: '', description: '' },
+  { id: 'gogo_no_cho', title: '午後の蝶', type: '歌集', seriesLabel: '第五歌集', year: '', publisher: 'ふらんす堂', coverImage: 'assets/books/gogo_no_cho_cover.webp', purchaseUrl: '', description: '' },
+  { id: 'toku_koirimasu', title: 'とく来りませ', type: '歌集', seriesLabel: '第六歌集', year: '', publisher: '砂子屋書房', coverImage: 'assets/books/toku_koirimasu_cover.webp', purchaseUrl: '', description: '' },
   { id: 'selection_kajin_30', title: 'セレクション歌人 30横山未来子集', type: 'その他著書', year: '', publisher: '邑書林', purchaseUrl: '', description: '' },
   { id: 'hajimete_no_yasashii_tanka', title: 'はじめてのやさしい短歌のつくりかた', type: 'その他著書', year: '', publisher: '日本文芸社', purchaseUrl: '', description: '' },
   { id: 'ichiban_yasashii_tanka', title: 'のんびり読んで、すんなり身につく　いちばんやさしい短歌', type: 'その他著書', year: '', publisher: '日本文芸社', purchaseUrl: '', description: '' },
@@ -382,11 +382,22 @@ function renderWorks(books) {
       const seriesLabel = item.seriesLabel ? `<span class="work-label">${escapeHtml(item.seriesLabel)}</span>` : '';
       const collaboration = item.collaboration ? `<span class="work-collaboration">（${escapeHtml(item.collaboration)}）</span>` : '';
       const publisher = item.publisher ? `<span class="work-publisher">${escapeHtml(item.publisher)}</span>` : '';
+      const cover = item.coverImage ? `
+          <img
+            class="work-cover"
+            src="${escapeHtml(item.coverImage)}"
+            alt="『${title}』書影"
+            loading="lazy"
+          />
+        ` : '';
       return `
-        <li class="work-item">
-          ${seriesLabel}
-          <span class="work-title-line"><span class="work-title">『${title}』</span>${collaboration}</span>
-          <span class="work-meta">${publisher}</span>
+        <li class="work-item${cover ? ' has-cover' : ''}">
+          <div class="work-text">
+            ${seriesLabel}
+            <span class="work-title-line"><span class="work-title">『${title}』</span>${collaboration}</span>
+            <span class="work-meta">${publisher}</span>
+          </div>
+          ${cover}
         </li>
       `;
     }).join('');
