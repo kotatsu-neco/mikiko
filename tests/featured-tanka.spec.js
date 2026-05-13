@@ -65,7 +65,7 @@ async function getHeroMetrics(page) {
 async function saveV13nScreenshot(page, viewport) {
   if (['mobile_375', 'mobile_390', 'mobile_430', 'desktop_1366'].includes(viewport.name)) {
     await page.screenshot({
-      path: `screenshots/v13n_chromium_${viewport.name}_top.png`,
+      path: `screenshots/v13o_chromium_${viewport.name}_top.png`,
       fullPage: false
     });
   }
@@ -108,7 +108,7 @@ test.describe('featured tanka hero', () => {
 
         if (index === 0) {
           await page.screenshot({
-            path: `screenshots/v13_fix_chromium_${viewport.name}_top.png`,
+            path: `screenshots/v13o_chromium_${viewport.name}_top.png`,
             fullPage: false
           });
           await saveV13nScreenshot(page, viewport);
@@ -232,8 +232,11 @@ test.describe('featured tanka hero', () => {
     await expect(page.locator('#works')).toContainText('『アルカリ色のくも　宮沢賢治の青春短歌を読む』');
     await expect(page.locator('#works')).toContainText('（共著）');
     await expect(page.locator('#works')).toContainText('NHK出版');
+    await expect(page.locator('#beginners')).toContainText('難しい説明を先に置かず、短歌そのものに静かに向き合える入口です。番組・授業・講演などをきっかけに知った方も、まずは一首から作品世界に触れられます。');
+    await expect(page.locator('#beginners')).not.toContainText('学校関係者、講演依頼を検討される方にも届く設計です。');
     await expect(page.locator('#contact')).toContainText('マネジメント窓口');
     await expect(page.locator('#contact')).not.toContainText('学校・講演関連');
+    await expect(page.locator('#contact')).toContainText('office@example.jp');
     await expect(page.getByRole('link', { name: /Instagram/ })).toHaveAttribute('href', 'https://www.instagram.com/yokoyama_mikiko');
     await expect(page.getByRole('link', { name: /^X/ })).toHaveAttribute('href', 'https://x.com/yokoyama_mikiko');
     await expect(page.getByRole('link', { name: /心の花/ })).toHaveAttribute('href', 'https://kokoronohana.sakura.ne.jp/');
@@ -288,6 +291,7 @@ test.describe('featured tanka hero', () => {
     await page.getByRole('button', { name: '『午後の蝶』書影を拡大表示' }).click();
     await expect(page.locator('.book-lightbox')).toBeVisible();
     await expect(page.locator('.book-lightbox__image')).toHaveAttribute('alt', '『午後の蝶』書影');
+    await page.screenshot({ path: 'screenshots/v13o_chromium_desktop_book_lightbox.png', fullPage: false });
     await page.keyboard.press('Escape');
     await expect(page.locator('.book-lightbox')).toBeHidden();
   });
@@ -315,4 +319,18 @@ test.describe('featured tanka hero', () => {
     const displayedBookImages = await page.locator('img[src^="assets/books/"]:visible').count();
     expect(displayedBookImages).toBe(0);
   });
+
+
+  test('news section keeps x fallback link and modest embed shell', async ({ page }) => {
+    await page.setViewportSize({ width: 1366, height: 768 });
+    await page.goto('/');
+    const xProfileLink = page.getByRole('link', { name: 'Xプロフィールを見る' });
+    await expect(xProfileLink).toHaveAttribute('href', 'https://x.com/yokoyama_mikiko');
+    await expect(xProfileLink).toHaveAttribute('rel', 'noopener noreferrer');
+    await expect(page.locator('.x-embed-shell')).toBeVisible();
+    await expect(page.locator('.x-embed-shell .twitter-timeline')).toHaveAttribute('data-height', '360');
+    await page.screenshot({ path: 'screenshots/v13o_chromium_desktop_x_embed.png', fullPage: false });
+  });
+
+
 });

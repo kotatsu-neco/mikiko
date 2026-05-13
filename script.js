@@ -1,4 +1,4 @@
-const BUILD_ID = 'v13n-rev3-layout-books-20260513';
+const BUILD_ID = 'v13o-cleanup-embed-20260513';
 const initialLocationHash = window.location.hash;
 const shouldKeepInitialTop = !initialLocationHash || initialLocationHash === '#top';
 const initialTopLockStartedAt = performance.now();
@@ -421,6 +421,33 @@ async function loadJson(path, fallback) {
   }
 }
 
+
+function ensureTwitterWidgets() {
+  const timelines = document.querySelectorAll('.twitter-timeline');
+  if (!timelines.length) return;
+
+  if (window.twttr?.widgets?.load) {
+    window.twttr.widgets.load();
+    recordDiagnostic('twitter-widgets-reload');
+    return;
+  }
+
+  const existingScript = document.querySelector('script[src="https://platform.twitter.com/widgets.js"]');
+  if (existingScript) {
+    recordDiagnostic('twitter-widgets-script-exists');
+    return;
+  }
+
+  const script = document.createElement('script');
+  script.src = 'https://platform.twitter.com/widgets.js';
+  script.async = true;
+  script.charset = 'utf-8';
+  script.onload = () => recordDiagnostic('twitter-widgets-loaded');
+  script.onerror = () => recordDiagnostic('twitter-widgets-error');
+  document.body.appendChild(script);
+  recordDiagnostic('twitter-widgets-injected');
+}
+
 function renderWorks(books) {
   if (!worksGrid) return;
   const order = ['歌集', 'その他著書'];
@@ -562,6 +589,7 @@ async function init() {
   booksData = Array.isArray(booksData) ? booksData : FALLBACK_BOOKS;
 
   renderWorks(booksData);
+  ensureTwitterWidgets();
 
   if (!tankaData.length) {
     renderTankaError();

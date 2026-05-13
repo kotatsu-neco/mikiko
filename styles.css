@@ -502,6 +502,65 @@ main {
   text-decoration-thickness: 1px;
 }
 
+
+.news-social {
+  margin-top: 20px;
+  padding: 20px 24px 24px;
+  border-top: 1px solid rgba(212, 202, 193, 0.72);
+}
+.news-social__header {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+.news-social__header h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+.news-social__header p {
+  margin: 0;
+  color: var(--sub);
+  font-size: 0.92rem;
+}
+.news-social__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.subtle-external-link {
+  color: var(--sub);
+  font-size: 0.92rem;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+}
+.x-embed-shell {
+  min-height: 88px;
+  max-height: 380px;
+  overflow: hidden;
+  border: 1px solid rgba(212, 202, 193, 0.72);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.72);
+}
+.x-embed-shell .twitter-timeline {
+  display: block;
+  width: 100% !important;
+  margin: 0 auto;
+}
+.contact-card {
+  display: grid;
+  gap: 8px;
+}
+.contact-address {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+.contact-note {
+  color: var(--sub);
+  font-size: 0.94rem;
+}
+
 .book-lightbox[hidden] {
   display: none;
 }
@@ -626,6 +685,10 @@ body.lightbox-open {
     grid-template-columns: 1fr;
     gap: 8px;
   }
+
+  .news-social {
+    padding-inline: 18px;
+  }
 }
 
 @media (max-width: 640px) {
@@ -716,6 +779,15 @@ body.lightbox-open {
   .contact-grid,
   .works-group {
     padding: 20px 18px;
+  }
+
+  .news-social {
+    margin-top: 16px;
+    padding: 18px;
+  }
+
+  .x-embed-shell {
+    max-height: 340px;
   }
 }
 

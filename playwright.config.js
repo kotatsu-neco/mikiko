@@ -1,5 +1,11 @@
+const fs = require('node:fs');
 // @ts-check
 const { defineConfig, devices } = require('@playwright/test');
+
+const linuxChromiumExecutable = '/usr/bin/chromium';
+const chromiumExecutablePath = process.platform === 'linux' && fs.existsSync(linuxChromiumExecutable)
+  ? linuxChromiumExecutable
+  : undefined;
 
 module.exports = defineConfig({
   testDir: './tests',
@@ -23,7 +29,8 @@ module.exports = defineConfig({
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
-        browserName: 'chromium'
+        browserName: 'chromium',
+        launchOptions: chromiumExecutablePath ? { executablePath: chromiumExecutablePath } : {}
       }
     }
   ]
