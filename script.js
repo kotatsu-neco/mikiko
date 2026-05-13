@@ -1,4 +1,4 @@
-const BUILD_ID = 'v13n-layout-books-20260509';
+const BUILD_ID = 'v13n-rev3-layout-books-20260513';
 const initialLocationHash = window.location.hash;
 const shouldKeepInitialTop = !initialLocationHash || initialLocationHash === '#top';
 const initialTopLockStartedAt = performance.now();
@@ -95,14 +95,14 @@ const FALLBACK_TANKA = [
 const FALLBACK_BOOKS = [
   { id: 'jukano_hitori_no_nemuri', title: '樹下のひとりの眠りのために', type: '歌集', seriesLabel: '第一歌集', year: '', publisher: '短歌研究社', purchaseUrl: '', description: '' },
   { id: 'mizuwo_hiraku_te', title: '水をひらく手', type: '歌集', seriesLabel: '第二歌集', year: '', publisher: '短歌研究社', purchaseUrl: '', description: '' },
-  { id: 'hanano_senga', title: '花の線画', type: '歌集', seriesLabel: '第三歌集', year: '', publisher: '青磁社', purchaseUrl: '', description: '' },
-  { id: 'kinno_ame', title: '金の雨', type: '歌集', seriesLabel: '第四歌集', year: '', publisher: '短歌研究社', purchaseUrl: '', description: '' },
+  { id: 'hanano_senga', title: '花の線画', type: '歌集', seriesLabel: '第三歌集', year: '', publisher: '青磁社', coverImage: 'assets/books/hana_no_senga_cover.webp', purchaseUrl: '', description: '' },
+  { id: 'kinno_ame', title: '金の雨', type: '歌集', seriesLabel: '第四歌集', year: '', publisher: '短歌研究社', coverImage: 'assets/books/kin_no_ame_cover.webp', purchaseUrl: '', description: '' },
   { id: 'gogo_no_cho', title: '午後の蝶', type: '歌集', seriesLabel: '第五歌集', year: '', publisher: 'ふらんす堂', coverImage: 'assets/books/gogo_no_cho_cover.webp', purchaseUrl: '', description: '' },
-  { id: 'toku_koirimasu', title: 'とく来りませ', type: '歌集', seriesLabel: '第六歌集', year: '', publisher: '砂子屋書房', coverImage: 'assets/books/toku_koirimasu_cover.webp', purchaseUrl: '', description: '' },
+  { id: 'toku_koirimasu', title: 'とく来りませ', type: '歌集', seriesLabel: '第六歌集', year: '', publisher: '砂子屋書房', coverImage: 'assets/books/toku_kitarimase_cover.webp', purchaseUrl: '', description: '' },
   { id: 'selection_kajin_30', title: 'セレクション歌人 30横山未来子集', type: 'その他著書', year: '', publisher: '邑書林', purchaseUrl: '', description: '' },
-  { id: 'hajimete_no_yasashii_tanka', title: 'はじめてのやさしい短歌のつくりかた', type: 'その他著書', year: '', publisher: '日本文芸社', purchaseUrl: '', description: '' },
-  { id: 'ichiban_yasashii_tanka', title: 'のんびり読んで、すんなり身につく　いちばんやさしい短歌', type: 'その他著書', year: '', publisher: '日本文芸社', purchaseUrl: '', description: '' },
-  { id: 'alkali_iro_no_kumo', title: 'アルカリ色のくも　宮沢賢治の青春短歌を読む', type: 'その他著書', year: '', publisher: 'NHK出版', collaboration: '共著', purchaseUrl: '', description: '' }
+  { id: 'hajimete_no_yasashii_tanka', title: 'はじめてのやさしい短歌のつくりかた', type: 'その他著書', year: '', publisher: '日本文芸社', coverImage: 'assets/books/hajimete_no_yasashii_tanka_cover.webp', purchaseUrl: '', description: '' },
+  { id: 'ichiban_yasashii_tanka', title: 'のんびり読んで、すんなり身につく　いちばんやさしい短歌', type: 'その他著書', year: '', publisher: '日本文芸社', coverImage: 'assets/books/ichiban_yasashii_tanka_cover.webp', purchaseUrl: '', description: '' },
+  { id: 'alkali_iro_no_kumo', title: 'アルカリ色のくも　宮沢賢治の青春短歌を読む', type: 'その他著書', year: '', publisher: 'NHK出版', collaboration: '共著', coverImage: 'assets/books/alkali_iro_no_kumo_cover.webp', purchaseUrl: '', description: '' }
 ];
 
 const featuredTanka = document.getElementById('featured-tanka');
@@ -113,6 +113,7 @@ const counter = document.getElementById('tanka-counter');
 const navToggle = document.querySelector('.nav-toggle');
 const globalNav = document.getElementById('global-nav');
 const siteHeader = document.getElementById('site-header');
+const coverMedia = window.matchMedia('(min-width: 921px)');
 
 const requiredElements = [
   ['featured-tanka', featuredTanka],
@@ -144,6 +145,10 @@ let diagnosticLatest = null;
 let diagnosticEvents = null;
 let diagnosticTextarea = null;
 let scrollLogTimer = null;
+let coverLightbox = null;
+let coverLightboxImage = null;
+let coverLightboxTitle = null;
+let coverLightboxClose = null;
 const diagnosticLogs = [];
 
 if (shouldUseManualRestoration && 'scrollRestoration' in history) {
@@ -320,6 +325,52 @@ function escapeHtml(text) {
     .replace(/'/g, '&#039;');
 }
 
+function ensureCoverLightbox() {
+  if (coverLightbox || !document.body) return;
+  coverLightbox = document.createElement('div');
+  coverLightbox.className = 'book-lightbox';
+  coverLightbox.setAttribute('role', 'dialog');
+  coverLightbox.setAttribute('aria-modal', 'true');
+  coverLightbox.setAttribute('aria-labelledby', 'book-lightbox-title');
+  coverLightbox.hidden = true;
+  coverLightbox.innerHTML = `
+    <div class="book-lightbox__panel">
+      <button class="book-lightbox__close" type="button" aria-label="書影の拡大表示を閉じる">閉じる</button>
+      <figure class="book-lightbox__figure">
+        <img class="book-lightbox__image" alt="" />
+        <figcaption id="book-lightbox-title" class="book-lightbox__title"></figcaption>
+      </figure>
+    </div>
+  `;
+  document.body.appendChild(coverLightbox);
+  coverLightboxImage = coverLightbox.querySelector('.book-lightbox__image');
+  coverLightboxTitle = coverLightbox.querySelector('.book-lightbox__title');
+  coverLightboxClose = coverLightbox.querySelector('.book-lightbox__close');
+  coverLightbox.addEventListener('click', (event) => {
+    if (event.target === coverLightbox || event.target === coverLightboxClose) closeCoverLightbox();
+  });
+}
+
+function openCoverLightbox(src, alt) {
+  if (!coverMedia.matches) return;
+  ensureCoverLightbox();
+  if (!coverLightbox || !coverLightboxImage || !coverLightboxTitle) return;
+  coverLightboxImage.src = src;
+  coverLightboxImage.alt = alt;
+  coverLightboxTitle.textContent = alt.replace(/書影$/, '');
+  coverLightbox.hidden = false;
+  document.body.classList.add('lightbox-open');
+  coverLightboxClose?.focus();
+  recordDiagnostic('open-cover-lightbox', { src });
+}
+
+function closeCoverLightbox() {
+  if (!coverLightbox || coverLightbox.hidden) return;
+  coverLightbox.hidden = true;
+  document.body.classList.remove('lightbox-open');
+  recordDiagnostic('close-cover-lightbox');
+}
+
 function getDisplayUnits(html) {
   const template = document.createElement('template');
   template.innerHTML = sanitizeTankaHtml(html);
@@ -378,17 +429,27 @@ function renderWorks(books) {
     .filter((group) => group.items.length);
   worksGrid.innerHTML = groups.map((group) => {
     const items = group.items.map((item) => {
-      const title = escapeHtml((item.title || '').replace(/^『|』$/g, ''));
+      const titleText = (item.title || '').replace(/^『|』$/g, '');
+      const title = escapeHtml(titleText);
       const seriesLabel = item.seriesLabel ? `<span class="work-label">${escapeHtml(item.seriesLabel)}</span>` : '';
       const collaboration = item.collaboration ? `<span class="work-collaboration">（${escapeHtml(item.collaboration)}）</span>` : '';
       const publisher = item.publisher ? `<span class="work-publisher">${escapeHtml(item.publisher)}</span>` : '';
+      const coverAlt = `『${titleText}』書影`;
       const cover = item.coverImage ? `
-          <img
-            class="work-cover"
-            src="${escapeHtml(item.coverImage)}"
-            alt="『${title}』書影"
-            loading="lazy"
-          />
+          <button
+            class="work-cover-button"
+            type="button"
+            data-cover-src="${escapeHtml(item.coverImage)}"
+            data-cover-alt="${escapeHtml(coverAlt)}"
+            aria-label="${escapeHtml(coverAlt)}を拡大表示"
+          >
+            <img
+              class="work-cover"
+              src="${escapeHtml(item.coverImage)}"
+              alt="${escapeHtml(coverAlt)}"
+              loading="lazy"
+            />
+          </button>
         ` : '';
       return `
         <li class="work-item${cover ? ' has-cover' : ''}">
@@ -401,8 +462,9 @@ function renderWorks(books) {
         </li>
       `;
     }).join('');
+    const groupClass = group.type === '歌集' ? 'works-group--poetry' : 'works-group--other';
     return `
-      <article class="works-group">
+      <article class="works-group ${groupClass}">
         <h3>${group.type}</h3>
         <ul class="works-list">${items}</ul>
       </article>
@@ -514,6 +576,11 @@ async function init() {
 prevBtn?.addEventListener('click', () => moveTanka(-1));
 nextBtn?.addEventListener('click', () => moveTanka(1));
 navToggle?.addEventListener('click', () => openNav());
+worksGrid?.addEventListener('click', (event) => {
+  const button = event.target.closest?.('.work-cover-button');
+  if (!button) return;
+  openCoverLightbox(button.dataset.coverSrc || '', button.dataset.coverAlt || '');
+});
 document.querySelectorAll('#global-nav a').forEach((link) => {
   link.addEventListener('click', () => openNav(false));
 });
@@ -544,6 +611,9 @@ document.addEventListener('DOMContentLoaded', () => {
   recordDiagnostic('DOMContentLoaded');
 });
 document.addEventListener('keydown', maybeHandleArrowNavigation);
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') closeCoverLightbox();
+});
 ['scroll', 'wheel', 'mousemove', 'touchstart', 'touchmove', 'pointerdown', 'keydown'].forEach((eventName) => {
   window.addEventListener(eventName, showHeader, { passive: true });
 });

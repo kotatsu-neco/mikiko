@@ -26,6 +26,7 @@
     "seriesLabel": "第三歌集",
     "year": "",
     "publisher": "青磁社",
+    "coverImage": "assets/books/hana_no_senga_cover.webp",
     "purchaseUrl": "",
     "description": ""
   },
@@ -36,6 +37,7 @@
     "seriesLabel": "第四歌集",
     "year": "",
     "publisher": "短歌研究社",
+    "coverImage": "assets/books/kin_no_ame_cover.webp",
     "purchaseUrl": "",
     "description": ""
   },
@@ -57,7 +59,7 @@
     "seriesLabel": "第六歌集",
     "year": "",
     "publisher": "砂子屋書房",
-    "coverImage": "assets/books/toku_koirimasu_cover.webp",
+    "coverImage": "assets/books/toku_kitarimase_cover.webp",
     "purchaseUrl": "",
     "description": ""
   },
@@ -76,6 +78,7 @@
     "type": "その他著書",
     "year": "",
     "publisher": "日本文芸社",
+    "coverImage": "assets/books/hajimete_no_yasashii_tanka_cover.webp",
     "purchaseUrl": "",
     "description": ""
   },
@@ -85,6 +88,7 @@
     "type": "その他著書",
     "year": "",
     "publisher": "日本文芸社",
+    "coverImage": "assets/books/ichiban_yasashii_tanka_cover.webp",
     "purchaseUrl": "",
     "description": ""
   },
@@ -95,6 +99,7 @@
     "year": "",
     "publisher": "NHK出版",
     "collaboration": "共著",
+    "coverImage": "assets/books/alkali_iro_no_kumo_cover.webp",
     "purchaseUrl": "",
     "description": ""
   }

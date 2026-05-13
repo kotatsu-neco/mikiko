@@ -232,6 +232,14 @@ test.describe('featured tanka hero', () => {
     await expect(page.locator('#works')).toContainText('『アルカリ色のくも　宮沢賢治の青春短歌を読む』');
     await expect(page.locator('#works')).toContainText('（共著）');
     await expect(page.locator('#works')).toContainText('NHK出版');
+    await expect(page.locator('#contact')).toContainText('マネジメント窓口');
+    await expect(page.locator('#contact')).not.toContainText('学校・講演関連');
+    await expect(page.getByRole('link', { name: /Instagram/ })).toHaveAttribute('href', 'https://www.instagram.com/yokoyama_mikiko');
+    await expect(page.getByRole('link', { name: /^X/ })).toHaveAttribute('href', 'https://x.com/yokoyama_mikiko');
+    await expect(page.getByRole('link', { name: /心の花/ })).toHaveAttribute('href', 'https://kokoronohana.sakura.ne.jp/');
+    await expect(page.getByRole('link', { name: /Instagram/ })).toHaveAttribute('rel', 'noopener noreferrer');
+    await expect(page.getByRole('link', { name: /^X/ })).toHaveAttribute('rel', 'noopener noreferrer');
+    await expect(page.getByRole('link', { name: /心の花/ })).toHaveAttribute('rel', 'noopener noreferrer');
 
     const alkaliText = await page.locator('.work-item').filter({ hasText: 'アルカリ色のくも' }).textContent();
     expect(alkaliText.replace(/\s+/g, ' ')).toContain('『アルカリ色のくも 宮沢賢治の青春短歌を読む』（共著） NHK出版');
@@ -254,29 +262,52 @@ test.describe('featured tanka hero', () => {
         brand: box('.brand'),
         profileHeading: box('#profile .section-heading'),
         worksHeading: box('#works .section-heading'),
-        worksGroupWidths: Array.from(document.querySelectorAll('.works-group')).map((element) => element.getBoundingClientRect().width)
+        worksGroupWidths: Array.from(document.querySelectorAll('.works-group')).map((element) => element.getBoundingClientRect().width),
+        poetryItemWidths: Array.from(document.querySelectorAll('.works-group--poetry .work-item')).map((element) => element.getBoundingClientRect().width),
+        otherItemWidths: Array.from(document.querySelectorAll('.works-group--other .work-item')).map((element) => element.getBoundingClientRect().width)
       };
     });
 
     expect(Math.abs(metrics.brand.left - metrics.profileHeading.left)).toBeLessThanOrEqual(1);
     expect(Math.abs(metrics.brand.left - metrics.worksHeading.left)).toBeLessThanOrEqual(1);
     expect(Math.abs(metrics.worksGroupWidths[0] - metrics.worksGroupWidths[1])).toBeLessThanOrEqual(1);
+    expect(Math.max(...metrics.poetryItemWidths) - Math.min(...metrics.poetryItemWidths)).toBeLessThanOrEqual(1);
+    expect(Math.max(...metrics.otherItemWidths) - Math.min(...metrics.otherItemWidths)).toBeLessThanOrEqual(1);
 
+    await expect(page.getByAltText('『花の線画』書影')).toBeVisible();
+    await expect(page.getByAltText('『金の雨』書影')).toBeVisible();
     await expect(page.getByAltText('『午後の蝶』書影')).toBeVisible();
     await expect(page.getByAltText('『とく来りませ』書影')).toBeVisible();
+    await expect(page.getByAltText('『はじめてのやさしい短歌のつくりかた』書影')).toBeVisible();
+    await expect(page.getByAltText('『のんびり読んで、すんなり身につく　いちばんやさしい短歌』書影')).toBeVisible();
+    await expect(page.getByAltText('『アルカリ色のくも　宮沢賢治の青春短歌を読む』書影')).toBeVisible();
     const coverWidth = await page.getByAltText('『午後の蝶』書影').evaluate((element) => element.getBoundingClientRect().width);
     expect(coverWidth).toBeGreaterThanOrEqual(72);
     expect(coverWidth).toBeLessThanOrEqual(96);
+
+    await page.getByRole('button', { name: '『午後の蝶』書影を拡大表示' }).click();
+    await expect(page.locator('.book-lightbox')).toBeVisible();
+    await expect(page.locator('.book-lightbox__image')).toHaveAttribute('alt', '『午後の蝶』書影');
+    await page.keyboard.press('Escape');
+    await expect(page.locator('.book-lightbox')).toBeHidden();
   });
 
   test('book cover assets are stored and hidden on mobile', async ({ page }) => {
     const coverPaths = [
+      'assets/books/alkali_iro_no_kumo_cover.webp',
       'assets/books/gogo_no_cho_cover.webp',
-      'assets/books/toku_koirimasu_cover.webp'
+      'assets/books/hajimete_no_yasashii_tanka_cover.webp',
+      'assets/books/hana_no_senga_cover.webp',
+      'assets/books/ichiban_yasashii_tanka_cover.webp',
+      'assets/books/kin_no_ame_cover.webp',
+      'assets/books/toku_kitarimase_cover.webp'
     ];
     for (const coverPath of coverPaths) {
       expect(fs.existsSync(path.join(process.cwd(), coverPath))).toBe(true);
     }
+    const booksJson = fs.readFileSync(path.join(process.cwd(), 'data/books.json'), 'utf8');
+    expect(booksJson).toContain('toku_kitarimase_cover.webp');
+    expect(booksJson).not.toContain('toku_koirimasu_cover.webp');
 
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/');

@@ -15,6 +15,9 @@ const DEBUG_PATHS = [
   '/?debugScroll=1#profile'
 ];
 
+const BUILD_ID = 'v13n-rev3-layout-books-20260513';
+const ASSET_QUERY = '20260513-v13n-rev3';
+
 function overlaps(a, b) {
   return a && b && a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
 }
@@ -53,11 +56,11 @@ test.describe('scroll diagnostics mode', () => {
       await expect(page.locator('.featured-loading')).toHaveCount(0);
       await expect(page.locator('.scroll-diagnostics')).toHaveCount(0);
       await expect(page.evaluate(() => history.scrollRestoration)).resolves.toBe('manual');
-      await expect(page.evaluate(() => window.__YKM_BUILD_ID__)).resolves.toBe('v13n-layout-books-20260509');
+      await expect(page.evaluate(() => window.__YKM_BUILD_ID__)).resolves.toBe(BUILD_ID);
 
       const urls = await assetUrls(page);
-      expect(urls.stylesheet).toBe('styles.css?v=20260509-v13n');
-      expect(urls.script).toBe('script.js?v=20260509-v13n');
+      expect(urls.stylesheet).toBe(`styles.css?v=${ASSET_QUERY}`);
+      expect(urls.script).toBe(`script.js?v=${ASSET_QUERY}`);
 
       if (viewport.width === 375 && viewport.height === 667) {
         await page.screenshot({ path: 'screenshots/diag_375x667_top_v13g.png', fullPage: false });
@@ -111,8 +114,8 @@ test.describe('scroll diagnostics mode', () => {
         expect(logs.some((entry) => entry.eventName === 'script-start')).toBe(true);
         expect(logs.some((entry) => entry.eventName === 'after-json-loaded')).toBe(true);
         expect(logs.some((entry) => entry.eventName === 'after-render-tanka')).toBe(true);
-        expect(logs.every((entry) => entry.buildId === 'v13n-layout-books-20260509')).toBe(true);
-        await expect(page.locator('.scroll-diagnostics__latest')).toContainText('build=v13n-layout-books-20260509');
+        expect(logs.every((entry) => entry.buildId === BUILD_ID)).toBe(true);
+        await expect(page.locator('.scroll-diagnostics__latest')).toContainText(`build=${BUILD_ID}`);
 
         if (path.includes('manualRestoration=1')) {
           expect(logs.at(-1).historyScrollRestoration).toBe('manual');
